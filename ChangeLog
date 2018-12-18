@@ -1,0 +1,4 @@
+2018-12-19  sndchk v0.0.0  <johan@hattne.se>
+
+    * Initial version.  Runs on one particular MacBook Pro with ALAC
+      audio files and iTunes metadata but probably nothing else.
