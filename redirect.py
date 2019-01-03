@@ -40,6 +40,10 @@ def redirect_handler_factory():
 
         # Path must start with a slash--use join() instead?
         discid2path = {
+            # The best of The Doors, disc 2
+            "ejrfwBlgmFMxnD3AiDOE4AqqMI8-":
+            "/accuraterip/b/b/b/dBAR-018-002c7bbb-02480762-1f124813.bin",
+
             # Flash
             "fRovc1tARQUreSsbP4zvcg6HCO4-":
             "/accuraterip/5/1/0/dBAR-003-00035015-000bc47d-2806f604.bin",
@@ -47,6 +51,10 @@ def redirect_handler_factory():
             # In lust we trust
             "7vqa6F_exuZ4paBsKHn0GO.tCrw-":
             "/accuraterip/b/2/8/dBAR-011-0013682b-00aee95b-9711560c.bin",
+
+            # Live 2003
+            "ELycL.Syz4kvJT.qkCNjBvHRSJA-":
+            "/accuraterip/9/7/e/dBAR-012-001f0e79-01222683-ba10f60d.bin",
 
             # Tour de France
             "IRLOxr5FVyI.c1he6OXS7hrNxZM-":

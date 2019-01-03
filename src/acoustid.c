@@ -41,7 +41,7 @@
 #include "ratelimit.h"
 #include "structures.h"
 
-// #define DEBUG 1
+//#define DEBUG 1
 
 
 /* The enumerated parser states
@@ -87,7 +87,7 @@ enum _parser_state
 /* The acoustid_context structure encapsulates the information needed
  * to match Chromaprint fingerprints against the AcoustID database and
  * maintain state while parsing the response
- */    
+ */
 struct acoustid_context
 {
     /* URI-escaped Chromaprint fingerprints and durations to match
@@ -291,7 +291,7 @@ _userdata_new(const struct acoustid_context *ctx)
 
     ud->recording_id_current = NULL;
     ud->index_current = 0;
-    
+
     return (ud);
 }
 
@@ -316,7 +316,7 @@ _userdata_finish(struct _userdata *ud)
 
     ne_buffer_destroy(ud->cdata);
 
-#if 0    
+#if 0
     if (ud->fingerprint != NULL)
         fp3_free_result(ud->fingerprint);
 
@@ -332,10 +332,10 @@ _userdata_finish(struct _userdata *ud)
     /*** XXX ADDED ***/
     if (ud->fingerprint_current != NULL)
         fp3_free_result(ud->fingerprint_current);
-    
+
     if (ud->result_current != NULL)
         fp3_free_result(ud->result_current);
-    
+
     if (ud->result_data != NULL)
         fp3_free_fingerprint(ud->result_data);
 
@@ -356,7 +356,7 @@ _userdata_finish(struct _userdata *ud)
 
     if (ud->recording_id_current != NULL)
         free(ud->recording_id_current);
-    
+
     response = ud->response_current;
     free(ud);
 
@@ -461,6 +461,13 @@ acoustid_new()
      * ne_sock_init() must have a corresponding invocation of
      * ne_sock_exit().  ne_session_create() cannot fail.
      *
+     * XXX Is neon_init() reference-counted?
+     *
+     * XXX Should allow proxies using ne_session_proxy(), look into
+     * subversion code for an example.  May need to set the user agent
+     * for the session with ne_set_useragent() to comply with acoustid
+     * rules (e.g. ne_set_useragent(ac->session, "MyUserAgent/1.0");).
+     *
      * See also accuraterip_new() and accuraterip_free().
      */
     if (ne_sock_init() != 0) {
@@ -505,7 +512,7 @@ acoustid_add_fingerprint(
     size_t index)
 {
     void *p;
-    
+
     _catf(ctx->fingerprints,
           "&duration.%zd=%u"
           "&fingerprint.%zd=%s",
@@ -648,7 +655,7 @@ _move_recordings(struct fp3_result *result_dst,
 
                 if (recording_dst->id == recording_src->id)
                     recording_src->id = NULL;
-                
+
                 if (!isfinite(recording_dst->score) ||
                     recording_dst->score > 1 ||
                     recording_dst->score < recording_src->score) {
@@ -684,7 +691,7 @@ _dispatch(struct acoustid_context *ctx, ne_xml_parser *parser, ...)
     size_t i, size_gzip;
     int ret;
 
-    
+
     /* Create the query string.  The caller-supplied meta elements are
      * URI-escaped; the fingerprints and the remaining constant
      * strings are guaranteed to be valid.
@@ -822,12 +829,12 @@ _dispatch(struct acoustid_context *ctx, ne_xml_parser *parser, ...)
                 ctx->session, "XML error: %s", ne_xml_get_error(parser));
         }
 
-        printf("SESSION APA STATUS: ->%s<- klass %d\n", ne_get_error(ctx->session),
+        printf("SESSION STATUS: ->%s<- klass %d\n", ne_get_error(ctx->session),
                ne_get_status(request)->klass);
 
         ne_request_destroy(request);
         gzip_free(gc);
-        
+
         return (-1);
     }
 
@@ -986,7 +993,7 @@ _cb_startelm(void *userdata,
             return (_STATE_MEDIUM);
         }
         break;
-        
+
     case _STATE_RECORDING:
         if (strcmp(name, "id") == 0)
             return (_STATE_RECORDING_ID);
@@ -1036,7 +1043,7 @@ _cb_startelm(void *userdata,
                 }
             }
             return (_STATE_RELEASE);
-        }        
+        }
         break;
 
     case _STATE_RELEASEGROUP:
@@ -1056,7 +1063,7 @@ _cb_startelm(void *userdata,
             }
 #endif
             // Reuse old structure, if present.
-            if (ud->releasegroup_current == NULL) {                
+            if (ud->releasegroup_current == NULL) {
                 ud->releasegroup_current = fp3_new_releasegroup();
                 if (ud->releasegroup_current == NULL) {
                     ne_xml_set_error(ud->parser, strerror(errno));
@@ -1066,7 +1073,7 @@ _cb_startelm(void *userdata,
             return (_STATE_RELEASEGROUP);
         }
         break;
-        
+
     case _STATE_RESPONSE:
         if (strcmp(name, "fingerprints") == 0)
             return (_STATE_FINGERPRINTS);
@@ -1098,7 +1105,7 @@ _cb_startelm(void *userdata,
                     return (NE_XML_ABORT);
                 }
             }
-            if (ud->result_data == NULL) {                
+            if (ud->result_data == NULL) {
                 ud->result_data = fp3_new_fingerprint();
                 if (ud->result_data == NULL) {
                     ne_xml_set_error(ud->parser, strerror(errno));
@@ -1132,7 +1139,6 @@ _cb_startelm(void *userdata,
             }
             return (_STATE_TRACK);
         }
-        
         break;
     }
 
@@ -1431,7 +1437,6 @@ _assign_recording_fingerprint(
                                     recording, fingerprint) == NULL) {
                                 return (-1);
                             }
-
                         }
                     }
                 }
@@ -1488,7 +1493,6 @@ _assign_recording_id(struct fp3_result *result, const char *id)
                                 recording->id = strdup(id);
                                 if (recording->id == NULL)
                                     return (-1);
-                                
                             }
                         }
                     }
@@ -1496,7 +1500,7 @@ _assign_recording_id(struct fp3_result *result, const char *id)
 #else
                 for (l = 0; l < medium->nmemb_tracks; l++) {
                     recording = medium->tracks[l];
-                    
+
                     if (recording->id != NULL) {
                         printf("This is weird\n");
                         sleep(10);
@@ -1667,7 +1671,7 @@ _cb_endelm(void *userdata, int state, const char *nspace, const char *name)
 
         for (i = 0; i < ud->recording->nmemb; i++) {
             releasegroup3 = ud->recording->releasegroups[i];
-            
+
             for (j = 0; j < releasegroup3->nmemb; j++) {
                 release3 = releasegroup3->releases[j];
 
@@ -1690,7 +1694,7 @@ _cb_endelm(void *userdata, int state, const char *nspace, const char *name)
                 }
             }
         }
-        
+
         free(ud->id_recording);
         ud->id_recording = NULL;
 
@@ -1706,7 +1710,7 @@ _cb_endelm(void *userdata, int state, const char *nspace, const char *name)
             ne_xml_set_error(ud->parser, strerror(errno));
             return (NE_XML_ABORT);
         }
-#endif        
+#endif
         // Assign the ID to all recordings under the current result
         // (which is a list of releasegroups) unless they already have
         // one.
@@ -1971,7 +1975,6 @@ _cb_endelm(void *userdata, int state, const char *nspace, const char *name)
             stream->score = f;
             fp3_fingerprint_add_stream(ud->result_data, stream); // XXX Could fail!
         }
-        
         break;
 
 
@@ -2428,9 +2431,9 @@ _userdata2_new(size_t nmemb)
         free(ud);
         return (NULL);
     }
-    
+
     ud->cdata = ne_buffer_create();
-    ud->parser = NULL;    
+    ud->parser = NULL;
 
     ud->media = NULL;
     ud->recordings = NULL;
@@ -2666,7 +2669,7 @@ _cb_startelm_2(void *userdata,
         break;
 
     case _STATE_MEDIUMS_2:
-        if (strcmp(name, "medium") == 0)            
+        if (strcmp(name, "medium") == 0)
             return (_STATE_MEDIUM_2);
         break;
 
@@ -2892,14 +2895,14 @@ _merge_recordings(struct metadata **recordings, size_t *nmemb)
                 ne_buffer_destroy(fingerprint_ids);
                 return (-1);
             }
-            
+
             if (n_fingerprints > 1) {
                 if (snprintf(recordings[i]->sort_artist,
                              strlen(recordings[i]->sort_artist), "%f",
 #if 0
                              score_tot / n_fingerprints
 #else
-                             score_tot                             
+                             score_tot
 #endif
                         ) < 0) {
                     ne_buffer_destroy(fingerprint_ids);
@@ -2914,7 +2917,7 @@ _merge_recordings(struct metadata **recordings, size_t *nmemb)
         ne_buffer_clear(fingerprint_ids);
         n_fingerprints = 0;
     }
-    
+
 
     /* Free the list of fingerprint ID:s.
      */
@@ -3066,7 +3069,7 @@ _cb_endelm_2(void *userdata, int state, const char *nspace, const char *name)
                 return (NE_XML_ABORT);
             }
         }
- 
+
         for (i = 0; i < ud->tracks->nmemb; i++) {
             metadata = _add_track(ud->media);
             if (metadata == NULL) {
@@ -3174,7 +3177,7 @@ _cb_endelm_2(void *userdata, int state, const char *nspace, const char *name)
                 return (NE_XML_ABORT);
             }
         }
- 
+
         for (i = 0; i < ud->releases->nmemb; i++) {
             metadata = _add_track(ud->recordings);
             if (metadata == NULL) {
@@ -3481,7 +3484,7 @@ acoustid_query(struct acoustid_context *ctx)
             printf("_merge_recordings() failed!\n");
             return (NULL);
         }
-        
+
         printf("  #### MERGED RECORDINGS, stream %zd ####\n", i + 1);
 #endif
 

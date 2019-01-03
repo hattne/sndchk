@@ -60,7 +60,6 @@
 #include "src/structures.h"
 
 //#define DEBUG 1
-
 //#define MB_RETRIES 5
 //#define MB_SLEEP 5
 
@@ -78,6 +77,7 @@ find_in_mediumlist(Mb5MediumList ml, const char *id)
     Mb5Recording r;
     int i, j, k, len;
 
+
     len = 0;
     rid = NULL;
 
@@ -85,11 +85,11 @@ find_in_mediumlist(Mb5MediumList ml, const char *id)
         tl = mb5_medium_get_tracklist(mb5_medium_list_item(ml, i));
         for (j = 0; j < mb5_track_list_size(tl); j++) {
             r = mb5_track_get_recording(mb5_track_list_item(tl, j));
-            
+
             k = mb5_recording_get_id(r, NULL, 0);
             if (k != 36)
                 printf("        **** mb5_recording_get_id() said %d ****\n", k);
-            
+
             if (k > len) {
                 p = realloc(rid, (k + 1) * sizeof(char));
                 if (p == NULL) {
@@ -108,7 +108,7 @@ find_in_mediumlist(Mb5MediumList ml, const char *id)
             }
         }
     }
-    
+
     if (rid != NULL)
         free(rid);
     return (NULL);
@@ -126,6 +126,7 @@ length_in_mediumlist(Mb5MediumList ml, const char *id)
     Mb5Recording r;
     int i, j, k, len;
 
+
     len = 0;
     rid = NULL;
 
@@ -133,11 +134,11 @@ length_in_mediumlist(Mb5MediumList ml, const char *id)
         tl = mb5_medium_get_tracklist(mb5_medium_list_item(ml, i));
         for (j = 0; j < mb5_track_list_size(tl); j++) {
             r = mb5_track_get_recording(mb5_track_list_item(tl, j));
-            
+
             k = mb5_recording_get_id(r, NULL, 0);
             if (k != 36)
                 printf("        **** mb5_recording_get_id() said %d ****\n", k);
-            
+
             if (k > len) {
                 p = realloc(rid, (k + 1) * sizeof(char));
                 if (p == NULL) {
@@ -156,7 +157,7 @@ length_in_mediumlist(Mb5MediumList ml, const char *id)
             }
         }
     }
-    
+
     if (rid != NULL)
         free(rid);
     return (-1);
@@ -180,14 +181,14 @@ find_release(struct fp3_releasegroup *releasegroup, Mb5Release release)
     id = static_cast<char *>(calloc(j + 1, sizeof(char)));
     if (id == NULL)
         return (NULL);
-    
+
     mb5_release_get_id(release, id, j + 1);
-    
+
     for (i = 0; i < releasegroup->nmemb; i++) {
         if (strcmp(id, releasegroup->releases[i]->id) == 0)
             return (releasegroup->releases[i]);
     }
-    
+
     return (NULL);
 }
 #endif
@@ -245,12 +246,10 @@ toc_match(struct fingersum_context **ctxs,
     char *dids[256]; // XXX
     int matches;
     float d, d_min;
-    
-    //void *p;
-    
-    struct fp3_recording_list *not_found;
 
-    not_found = fp3_new_recording_list();
+    //void *p;
+
+    struct fp3_recording_list *not_found;
 
 
     /* XXX The length of the recording is different from the length of
@@ -259,6 +258,7 @@ toc_match(struct fingersum_context **ctxs,
      * Convert track length in milliseconds from musicbrainz, and
      * round up.
      */
+    not_found = fp3_new_recording_list();
     for (k = 0; k < mb5_medium_list_size(ml); k++) {
 
         dl = mb5_medium_get_disclist(mb5_medium_list_item(ml, k));
@@ -278,11 +278,11 @@ toc_match(struct fingersum_context **ctxs,
                     s = mb5_offset_get_offset(mb5_offset_list_item(ol, m + 1)) -
                         mb5_offset_get_offset(o);
                 } else {
-                    s = mb5_disc_get_sectors(mb5_disc_list_item(dl, l)) - 
+                    s = mb5_disc_get_sectors(mb5_disc_list_item(dl, l)) -
                         mb5_offset_get_offset(o);
                 }
 
-                
+
                 /* Find the corresponding track, extract the
                  * recording.
                  */
@@ -310,7 +310,8 @@ toc_match(struct fingersum_context **ctxs,
                     sectors = fingersum_get_sectors(ctxs[i]);
                     if (sectors < 0)
                         ; // XXX
-                    
+
+
                     /* XXX Why is this necessary again? Is it because
                      * a stream may not have been matched?
                      */
@@ -322,13 +323,13 @@ toc_match(struct fingersum_context **ctxs,
                         printf("  Stream %zd has %zd recordings\n",
                                i, recordings->nmemb);
                     }
-                    
+
                     for (j = 0; j < recordings->nmemb; j++) {
                         recording = recordings->recordings[j];
-                        
+
                         if (strcmp(id, recording->id) != 0)
                             continue;
-                        
+
                         d = fabs(s - sectors);
                         if (d < d_min)
                             d_min = d;
@@ -338,26 +339,27 @@ toc_match(struct fingersum_context **ctxs,
                         }
                     }
                 }
-                
+
                 if (matches == 0) {
                     if (isfinite(d_min)) {
                         printf("  %d:%d: mismatch %ld ->%s<- %d [%f]\n",
                                k, m, s, id, matches, d_min);
                         continue; // return (0);
                     }
-                    
+
+
                     /* This recording was not found. Append to the list.
                      */
                     printf("  %d:%d: NOT FOUND\n", k, l);
 
-/*                    
+/*
                     p = realloc(not_found, (nfs + 1) * sizeof(char *));
                     if (p == NULL)
                         ; // XXX
                     not_found = static_cast<char **>(p);
                     not_found[nfs++] = strdup(id);
 */
-                    
+
                     recording = fp3_recording_list_add_recording_by_id(not_found, strdup(id));
                     if (recording == NULL)
                         ; // XXX
@@ -371,13 +373,14 @@ toc_match(struct fingersum_context **ctxs,
                 }
             }
         }
-        
+
 
 #if 0
         for (l = 0; l < mb5_track_list_size(tl); l++) {
             t = mb5_track_list_item(tl, l);
             r = mb5_track_get_recording(t);
             s = lrint(ceil(75.0 * mb5_track_get_length(t) / 1000));
+
 
             /* Find the recording in the release.
              *
@@ -392,7 +395,7 @@ toc_match(struct fingersum_context **ctxs,
                 sectors = fingersum_get_sectors(ctxs[i]);
                 if (sectors < 0)
                     ; // XXX
-                
+
 
                 /* XXX Why is this necessary again?  Is it because a
                  * stream may not have been matched?
@@ -408,7 +411,7 @@ toc_match(struct fingersum_context **ctxs,
 
                 for (j = 0; j < recordings->nmemb; j++) {
                     recording = recordings->recordings[j];
-                    
+
                     if (strcmp(id, recording->id) != 0)
                         continue;
 
@@ -419,13 +422,14 @@ toc_match(struct fingersum_context **ctxs,
                         matches += 1;
                 }
             }
-            
+
             if (matches == 0) {
                 if (isfinite(d_min)) {
                     printf("  %d:%d: mismatch %ld ->%s<- %d [%f]\n",
                            k, l, s, id, matches, d_min);
                     continue; //return (0);
                 }
+
 
                 /* This recording was not found.  Append it to the list.
                  */
@@ -438,15 +442,14 @@ toc_match(struct fingersum_context **ctxs,
                 not_found[nfs++] = strdup(id);
 */
                 struct fp3_recording *recording;
-                
+
                 recording = fp3_recording_list_add_recording_by_id(not_found, strdup(id));
                 if (recording == NULL)
                     ; // XXX
 
                 // XXX To avoid NAN for e.g. Snatch, but what about
                 // position_medium and position_track?
-                recording->score = 0;                
-
+                recording->score = 0;
 
             } else {
                 printf("  %d:%d: MATCH %ld ->%s<- %d [%f]\n",
@@ -484,7 +487,7 @@ toc_match(struct fingersum_context **ctxs,
      */
     size_t *best, *current;
     size_t theor, practice;
-    
+
     best = (size_t *)calloc(release->nmemb, sizeof(size_t));
     if (best == NULL)
         ; // XXX
@@ -503,12 +506,11 @@ toc_match(struct fingersum_context **ctxs,
     toc_score->score = 0;
     practice = 0;
     do {
-        practice += 1;
-
         /* Check whether the combination is valid, i.e. that any
          * recording occurs at most once.  This will set j to
          * release->nmemb if, and only if, it is valid.
          */
+        practice += 1;
         for (i = 0; i < release->nmemb; i++) {
             for (j = i + 1; j < release->nmemb; j++) {
                 if (strcmp(
@@ -536,7 +538,6 @@ toc_match(struct fingersum_context **ctxs,
         // stream will count towards the distance.
         //
         // XXX combo -> configuration
-
         if (j == release->nmemb) {
             float f;
             long int s;
@@ -545,11 +546,13 @@ toc_match(struct fingersum_context **ctxs,
             s = 0;
             for (i = 0; i < release->nmemb; i++) {
                 int l;
-                
+
+
                 // Old way
                 l = length_in_mediumlist(
                     ml,
                     release->streams[i]->recordings[current[i]]->id);
+
 
                 // New way
 /*
@@ -570,7 +573,7 @@ toc_match(struct fingersum_context **ctxs,
             // medium that is not assigned
             for (k = 0; k < mb5_medium_list_size(ml); k++) {
                 tl = mb5_medium_get_tracklist(mb5_medium_list_item(ml, k));
-        
+
                 for (l = 0; l < mb5_track_list_size(tl); l++) {
                     t = mb5_track_list_item(tl, l);
                     r = mb5_track_get_recording(t);
@@ -580,11 +583,10 @@ toc_match(struct fingersum_context **ctxs,
                         if (strcmp(
                                 release->streams[i]->recordings[current[i]]->id,
                                 id) == 0) {
-
                             break;
                         }
                     }
-                    
+
                     if (i == release->nmemb)
                         s += lrint(ceil(75.0 * mb5_track_get_length(t) / 1000));
                 }
@@ -688,11 +690,11 @@ length_in_mediumlist2(Mb5MediumList ml, const char *id, int *di_current)
         tl = mb5_medium_get_tracklist(mb5_medium_list_item(ml, i));
         for (j = 0; j < mb5_track_list_size(tl); j++) {
             r = mb5_track_get_recording(mb5_track_list_item(tl, j));
-            
+
             k = mb5_recording_get_id(r, NULL, 0);
             if (k != 36)
                 printf("        **** mb5_recording_get_id() said %d ****\n", k);
-            
+
             if (k > len) {
                 p = realloc(rid, (k + 1) * sizeof(char));
                 if (p == NULL) {
@@ -706,6 +708,7 @@ length_in_mediumlist2(Mb5MediumList ml, const char *id, int *di_current)
 
             mb5_recording_get_id(r, rid, len + 1);
             if (strcmp(rid, id) == 0) {
+
 
                 /* This is the old way of doing it: return the length
                  * of the track.
@@ -722,13 +725,13 @@ length_in_mediumlist2(Mb5MediumList ml, const char *id, int *di_current)
 
                     if (mb5_offset_get_position(o) ==
                         mb5_track_get_position(t)) {
-                        
+
                         if (l + 1 < mb5_offset_list_size(ol)) {
                             return (mb5_offset_get_offset(
-                                        mb5_offset_list_item(ol, l + 1)) - 
+                                        mb5_offset_list_item(ol, l + 1)) -
                                     mb5_offset_get_offset(o));
                         } else {
-                            return (mb5_disc_get_sectors(d) - 
+                            return (mb5_disc_get_sectors(d) -
                                     mb5_offset_get_offset(o));
                         }
                     }
@@ -782,7 +785,7 @@ toc_match_discids(struct fingersum_context **ctxs,
     Mb5Track t;
     Mb5Recording r;
     char id[256]; // XXX
-    
+
 
     /* See comment regarding release->nmemb in toc_match2() below.
      */
@@ -825,7 +828,6 @@ toc_match_discids(struct fingersum_context **ctxs,
                 }
             }
         }
-
 //        printf("hej1 %zd %zd\n", j, release->nmemb);
 
         if (j == release->nmemb) {
@@ -833,6 +835,7 @@ toc_match_discids(struct fingersum_context **ctxs,
             // if appropriate.
             float f;
             long int s;
+
 
             /* Evaluate score for current.  If length_in_mediumlist2()
              * fails, there are more streams than recordings in the
@@ -873,7 +876,6 @@ toc_match_discids(struct fingersum_context **ctxs,
                 f += release->streams[i]->recordings[re_current[i]]->score;
                 s += labs(l - (int)fingersum_get_sectors(ctxs[i])); // XXX FISHY CAST!  And fingersum_get_sectors() can fail
             }
-
 //            printf("hej2\n");
 
 
@@ -882,11 +884,11 @@ toc_match_discids(struct fingersum_context **ctxs,
              */
             for (k = 0; k < mb5_medium_list_size(ml); k++) {
                 tl = mb5_medium_get_tracklist(mb5_medium_list_item(ml, k));
-                
+
                 for (l = 0; l < mb5_track_list_size(tl); l++) {
                     t = mb5_track_list_item(tl, l);
                     r = mb5_track_get_recording(t);
-                    
+
                     mb5_recording_get_id(r, id, sizeof(id)); // XXX
                     for (i = 0; i < release->nmemb; i++) {
                         if (strcmp(
@@ -894,7 +896,7 @@ toc_match_discids(struct fingersum_context **ctxs,
                             break;
                         }
                     }
-                    
+
                     if (i == release->nmemb) {
                         int l;
 
@@ -905,7 +907,6 @@ toc_match_discids(struct fingersum_context **ctxs,
                     }
                 }
             }
-
 //            printf("hej3\n");
 
 
@@ -923,7 +924,7 @@ toc_match_discids(struct fingersum_context **ctxs,
             ; //printf("        +++ This combo is invalid! +++\n");
         }
 
-        
+
         /* Generate next trial in current, break out of the outer loop
          * if all trials exhausted.
          */
@@ -944,7 +945,6 @@ toc_match_discids(struct fingersum_context **ctxs,
     } while (i < release->nmemb);
 
 //    printf("hej3\n");
-        
 //    printf("Ran %zd inner loop\n", inner_loops); // XXX Commented out 2015-11-09
 
 
@@ -984,11 +984,11 @@ toc_match2(struct fingersum_context **ctxs,
     int j;
     int *di_best, *di_current;
     size_t *re_best, *re_current;
-    
+
     size_t nmemb;
     struct toc_score ts_current;
-    
-    
+
+
     /* The best and the current choice of discid for each medium. XXX
      * These guys must be freed!
      */
@@ -1084,17 +1084,16 @@ toc_match2(struct fingersum_context **ctxs,
 
 //            printf("    HATTNE toc_match2() #3.3\n");
 
-            
+
             /* Reset the discids lists, and add all the discids to the
              * list.
              */
             for (i = 0; i < release->nmemb_media; i++) {
                 char id[256];
-                
+
                 dl = mb5_medium_get_disclist(mb5_medium_list_item(ml, i));
                 Mb5Disc d = mb5_disc_list_item(dl, di_current[i]);
                 mb5_disc_get_id(d, id, sizeof(id));
-                    
 
                 fp3_clear_medium(release->media[i]);
                 if (fp3_add_discid(release->media[i], id) == NULL)
@@ -1108,16 +1107,15 @@ toc_match2(struct fingersum_context **ctxs,
 //            printf("    HATTNE toc_match2() #3.5\n");
             for (i = 0; i < release->nmemb_media; i++) {
                 char id[256];
-                
+
                 dl = mb5_medium_get_disclist(mb5_medium_list_item(ml, i));
                 Mb5Disc d = mb5_disc_list_item(dl, di_current[i]);
                 mb5_disc_get_id(d, id, sizeof(id));
-                
+
                 if (fp3_add_discid(release->media[i], id) == NULL)
                     ; // XXX
             }
         }
-
 //        printf("    HATTNE toc_match2() #3.6\n");
 
 
@@ -1134,7 +1132,6 @@ toc_match2(struct fingersum_context **ctxs,
             }
         }
     } while (j < mb5_medium_list_size(ml));
-
 //    printf("Tried %zd permutations\n", permutations);
 
 
@@ -1189,7 +1186,7 @@ _medium_list_get_recording(Mb5MediumList MediumList, const char *id)
      * for NULL-termination.
      */
     ID = ne_buffer_ncreate(36 + 1);
-    
+
     for (i = 0; i < mb5_medium_list_size(MediumList); i++) {
         Medium = mb5_medium_list_item(MediumList, i);
         if (Medium == NULL)
@@ -1285,7 +1282,7 @@ _filter_incomplete(struct fp3_result *response)
 
                             for (o = 0; o < recording->nmemb; o++) {
                                 fingerprint = recording->fingerprints[o];
-                                
+
                                 for (q = 0; q < nmemb; q++) {
                                     if (indices[q] == fingerprint->index)
                                         break;
@@ -1377,7 +1374,8 @@ _filter_incomplete(struct fp3_result *response)
 
     size_t *indices_unmatched;
     size_t nmemb_unmatched;
-    
+
+
     /* Create a list of all unmatched indices
      */
     indices_unmatched = NULL;
@@ -1420,7 +1418,7 @@ _filter_incomplete(struct fp3_result *response)
     struct fp3_fingerprint *fingerprint = fp3_fingerprint_new();
     if (recording == NULL)
         ; // XXX
-    
+
     for (i = 0; i < response->nmemb; i++) {
         releasegroup = response->releasegroups[i];
 
@@ -1471,6 +1469,7 @@ _prune_release(struct fp3_release *release, Mb5MediumList MediumList)
     struct fp3_recording_list *recordings;
     size_t i, j;
 
+
     for (i = 0; i < release->nmemb; i++) {
         recordings = release->streams[i];
         if (recordings == NULL)
@@ -1487,7 +1486,7 @@ _prune_release(struct fp3_release *release, Mb5MediumList MediumList)
 }
 #endif
 
-                
+
 /* Iterate through the Disc's OffsetList because it may
  * (theoretically) be out of order.
  *
@@ -1542,6 +1541,7 @@ _medium_recording_at_position(struct fp3_medium *medium, size_t position)
     struct fp3_recording *recording;
     size_t i;
 
+
     for (i = 0; i < medium->nmemb_tracks; i++) {
         recording = medium->tracks[i];
         if (recording->position == position)
@@ -1561,6 +1561,7 @@ _release_recording_at_position(
 {
     struct fp3_medium *medium;
     size_t i;
+
 
     for (i = 0; i < release->nmemb_media; i++) {
         medium = release->media[i];
@@ -1584,6 +1585,7 @@ _disc_add_chunk(struct fp3_disc *disc,
 {
     struct fp3_offset_list *offset_list;
     size_t i;
+
 
     for (i = 0; i < track->nmemb; i++) {
         offset_list = fingersum_find_offset(
@@ -1649,6 +1651,7 @@ _disc_add_response(struct fp3_disc *disc,
     struct fp3_track *track;
     size_t i, j, k;
 
+
     for (i = 0; i < response->nmemb; i++) {
         entry = response->entries + i;
 
@@ -1700,7 +1703,7 @@ _disc_add_response(struct fp3_disc *disc,
             }
         }
     }
-        
+
     return (0);
 }
 
@@ -1769,6 +1772,7 @@ _disc_add_tracks(struct fp3_disc *disc,
     struct fp3_track *track;
     size_t i, j;
 
+
     track = fp3_new_track();
     if (track == NULL)
         return (-1);
@@ -1776,12 +1780,12 @@ _disc_add_tracks(struct fp3_disc *disc,
     for (i = 0; i < recording->nmemb; i++) {
         fingerprint = recording->fingerprints[i];
 
-
         for (j = 0; j < fingerprint->nmemb; j++) {
             stream = fingerprint->streams[j];
 
             printf("  Checking %zd/%zd index %zd sectors: %d\n",
                    i, recording->nmemb, stream->index, sectors);
+
 
             // XXX fingersum_get_sectors() can fail!
             if (fingersum_get_sectors(ctxs[stream->index]) == sectors) {
@@ -1822,7 +1826,6 @@ _disc_add_tracks(struct fp3_disc *disc,
         // XXX Think about this!
         printf("Skipping because nmemb == 0, %zd\n", recording->nmemb);
     }
-
     fp3_free_track(track);
 
     return (0);
@@ -1851,7 +1854,7 @@ _medium_add_discs(struct fp3_medium *medium,
 
     struct fp3_disc *disc;
     struct fp3_recording *recording;
-    
+
     int i, j, position, sectors;
 
 
@@ -2232,7 +2235,7 @@ _complete_release(struct fp3_release *release,
 //    printf("*** DUMP OF UNMATCHED STREAMS ***\n");
 //    fp3_recording_dump(indices, 2, 0);
 //    printf("*** DUMP OF UNMATCHED STREAMS ***\n");
-    
+
     if (indices->nmemb == 0) {
         fp3_free_fingerprint(indices);
         return (0);
@@ -2342,6 +2345,7 @@ _add_streams_offset(struct fingersum_context **ctxs,
     const struct fp3_releasegroup* releasegroup;
     size_t i, j;
 
+
     for (i = 0; i < result->nmemb; i++) {
         releasegroup = result->releasegroups[i];
 
@@ -2393,7 +2397,7 @@ _release_has_matching_index(struct fp3_release *release, size_t index)
 
 //    fp3_medium_dump(medium, 2, 0);
     printf("    FAILED to find index %zd on medium %zd\n", index, medium->position);
-    
+
     return (0);
 }
 
@@ -2494,7 +2498,7 @@ _toc_lower_bound(struct fingersum_context **ctxs,
     long int d, s;
     unsigned int sectors; // XXX is this really the correct type?
     int j, k, m, n, Position;
-    
+
 
     /* Allocate and initialize space for the media.
      *
@@ -2530,7 +2534,7 @@ _toc_lower_bound(struct fingersum_context **ctxs,
         ne_buffer_altered(ID);
         if (strcmp(ID->data, "CD") != 0)
             continue; // XXX Correct
-        
+
         DiscList = mb5_medium_get_disclist(Medium);
         if (DiscList == NULL)
             continue; // XXX Correct?
@@ -2541,7 +2545,7 @@ _toc_lower_bound(struct fingersum_context **ctxs,
 
         best_score.distance = LONG_MAX;
         best_score.score = 0;
-        
+
 
         /* Test all the discs for this particular medium, keep only
          * the best matching disc.
@@ -2556,7 +2560,7 @@ _toc_lower_bound(struct fingersum_context **ctxs,
             OffsetList = mb5_disc_get_offsetlist(Disc);
             if (OffsetList == NULL)
                 continue; // XXX Correct?
-            
+
             disc_score.distance = 0;
             disc_score.score = 0;
 
@@ -2608,8 +2612,8 @@ _toc_lower_bound(struct fingersum_context **ctxs,
                 ne_buffer_grow(ID, mb5_recording_get_id(Recording, NULL, 0) + 1);
                 mb5_recording_get_id(Recording, ID->data, ID->length);
                 ne_buffer_altered(ID);
-                
-                
+
+
                 /* Find the recording in the release (i.e. among the
                  * streams).
                  *
@@ -2626,7 +2630,8 @@ _toc_lower_bound(struct fingersum_context **ctxs,
                     sectors = fingersum_get_sectors(ctxs[i]);
                     if (sectors < 0)
                         ; // XXX
-                    
+
+
                     /* XXX Why is this necessary again?  Is it because
                      * a stream may not have been matched?  In that
                      * case, this should not happen here (because of
@@ -2644,13 +2649,13 @@ _toc_lower_bound(struct fingersum_context **ctxs,
                         exit (0);
                         continue;
                     }
-                    
+
                     for (l = 0; l < recordings_my->nmemb; l++) {
                         recording_my = recordings_my->recordings[l];
-                        
+
                         if (strcmp(ID->data, recording_my->id) != 0)
                             continue;
-                        
+
                         d = labs(s - sectors);
                         if (d < d_min || (d == d_min && recording_my->score > s_max)) {
                             d_min = d;
@@ -2661,7 +2666,6 @@ _toc_lower_bound(struct fingersum_context **ctxs,
                 disc_score.distance += d_min;
                 disc_score.score += s_max;
             }
-
 //            printf("Got disc scores %ld %f\n",
 //                   disc_score.distance, disc_score.score);
 
@@ -2676,17 +2680,18 @@ _toc_lower_bound(struct fingersum_context **ctxs,
                 best_score.distance = disc_score.distance;
                 best_score.score = disc_score.score;
 
+
                 /* Delete all previous discids from medium, and add
                  * discid to medium.  If distance is equal, add it as
                  * an alternative.
                  */
                 fp3_clear_medium(release->media[j]);
                 fp3_add_discid(release->media[j], ID->data);
-                
+
             } else if (disc_score.distance == best_score.distance) {
                 fp3_add_discid(release->media[j], ID->data);
             }
-            
+
             ne_buffer_clear(ID);
         }
 
@@ -2705,7 +2710,7 @@ _toc_lower_bound(struct fingersum_context **ctxs,
             ne_buffer_destroy(ID);
             return (-1);
         }
-        
+
         toc_score->distance += best_score.distance;
         toc_score->score += best_score.score;
     }
@@ -2734,7 +2739,7 @@ _toc_accuraterip(struct fingersum_context **ctxs,
 //    Mb5TrackList TrackList;
 
     ne_buffer *ID;
-    
+
     size_t k, l, m; //, n;
     int i, j;
 
@@ -2759,8 +2764,7 @@ _toc_accuraterip(struct fingersum_context **ctxs,
 
     toc_score->distance = 0; // XXX Mind this!
     toc_score->score = 0; // XXX Mind this!
-    
-    
+
     for (i = 0; i < mb5_medium_list_size(MediumList); i++) {
         Medium = mb5_medium_list_item(MediumList, i);
         if (Medium == NULL)
@@ -2805,7 +2809,7 @@ _toc_accuraterip(struct fingersum_context **ctxs,
             ne_buffer_altered(ID);
 
             printf("check here\n");
-            
+
             disc = fp3_add_disc_by_id(medium, ID->data);
             if (disc == NULL) {
                 printf("fp3_add_disc_by_id() failed\n");
@@ -2848,7 +2852,6 @@ _toc_accuraterip(struct fingersum_context **ctxs,
                          * structure and return a newly created
                          * release structure here!
                          */
-
 //                        for (n = 0; n < recordings->nmemb; n++) {
 //                            recording = recordings->recordings[n];
 //                        }
@@ -2857,7 +2860,6 @@ _toc_accuraterip(struct fingersum_context **ctxs,
             }
         }
     }
-
     fp3_release_dump(release, 2, 0);
 
     exit(EXIT_SUCCESS);
@@ -2915,7 +2917,7 @@ levenshtein(const wchar_t *s, const wchar_t *t)
     if (n == 0)
         return (m);
 
-    
+
     /* Allocate and initialise v, the previous row of distances. This
      * row is A[0][i], edit distance for an empty s.  The distance is
      * just the number of characters to delete from t.
@@ -2926,7 +2928,6 @@ levenshtein(const wchar_t *s, const wchar_t *t)
 
     for (j = 0; j < m + 1; j++)
         v[j] = j;
-
 
     for (i = 0; i < n; i++) {
         /* Calculate current row distance from the previous row v.
@@ -3074,6 +3075,7 @@ _append_artist(
 //                    "current count %zd at %p ptr %p\n",
 //                    str2, *nmemb, *artists, artist);
 
+
                 /* XXX How can composer_ref be NULL here?
                  */
                 if (composer_ref == NULL || strstr(composer_ref, str2) == NULL) {
@@ -3088,6 +3090,7 @@ _append_artist(
 //                    "Considering artist ->%s<-, "
 //                    "current count %zd at %p ptr %p\n",
 //                    str2, *nmemb, *artists, artist);
+
 
                 /* XXX How can composer_ref be NULL here?
                  */
@@ -3104,10 +3107,10 @@ _append_artist(
                 if (strcmp(str, str2) == 0)
                     break;
             }
-            
+
             if (k < *nmemb)
                 continue;
-            
+
             p = realloc(*artists, (*nmemb + 1) * sizeof(Mb5Artist));
             if (p == NULL)
                 ; // XXX
@@ -3116,7 +3119,6 @@ _append_artist(
             *nmemb += 1;
 
 //            printf("  ADDED to %p as %p\n", *artists, (*artists)[*nmemb - 1]);
-
         }
     }
 
@@ -3127,7 +3129,7 @@ _append_artist(
 /* XXX This appears to be redundant now, and could be merged back into
  * get_mb_values() proper.
  */
-struct metadata * 
+struct metadata *
 get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_t recording_position)
 {
     //    const struct fp3_medium *medium;
@@ -3138,7 +3140,7 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
 //    size_t i, j, k, l;
 //    char mb_title[1024];
 //    const char *stream_title;
-    
+
     Mb5Recording mb_recording;
     Mb5Track mb_track;
     Mb5ArtistCredit ac;
@@ -3367,6 +3369,7 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
         nc = mb5_namecredit_list_item(ncl, i);
         a = mb5_namecredit_get_artist(nc);
 
+
         /* Is this logic correct?  Use namecredit if it exists, fall
          * back on name of artist. XXX May need additional space here?
          *
@@ -3383,6 +3386,7 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
                 a, metadata->artist + len, 1024 - len);
 
         }
+
 
         /* Note that sort_artist is always taken from artist proper,
          * as opposed to namecredit.  Does that make sense?  XXX Maybe
@@ -3436,6 +3440,7 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
      */
     const char *artist_various = "89ad4ac3-39f7-470e-963a-56509c546377";
 
+
     metadata->album_artist = (char *)calloc(1024, sizeof(char));
     if (metadata->album_artist == NULL)
         return (NULL);
@@ -3460,6 +3465,7 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
 
 //        printf("  NISSE %02d/%02d: got ->%s<-\n",
 //               i, mb5_namecredit_list_size(ncl), rid);
+
 
         /* Leave album_artist empty for compilations, i.e. where the
          * sole album_artist is "Various Artists".  XXX How to deal
@@ -3584,7 +3590,7 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
     Mb5Relation r; //, wr;
     Mb5Work w;
     int j; //, k, l;
-    
+
 //    Mb5Artist a;
     int i;
 
@@ -3694,7 +3700,7 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
         ;
     metadata->sort_composer[0] = '\0';
 //    int n_sort_composers = 0;
-    
+
     rll = mb5_recording_get_relationlistlist(mb_recording);
 
 //    printf("HAVE %d relationships\n", mb5_relationlist_list_size(rll));
@@ -3791,13 +3797,14 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
 
                 for (k = 0; k < mb5_relationlist_list_size(wrll); k++) {
                     wrl = mb5_relationlist_list_item(wrll, k);
-                    
+
+
                     /* First, append composer.
                      */
                     for (l = 0; l < mb5_relation_list_size(wrl); l++) {
                         wr = mb5_relation_list_item(wrl, l);
                         a = mb5_relation_get_artist(wr);
-                        
+
                         if (a != NULL) {
                             char str2[1024];
                             //int len2 =
@@ -3816,7 +3823,7 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
                                         strlen(metadata->composer) > 0 ? ", " : "",
                                         str3);
                                 }
-                                
+
                                 mb5_artist_get_sortname(
                                     a, str3, sizeof(str3));
                                 if (strstr(metadata->sort_composer, str3) == NULL) {
@@ -3841,7 +3848,7 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
                     for (l = 0; l < mb5_relation_list_size(wrl); l++) {
                         wr = mb5_relation_list_item(wrl, l);
                         a = mb5_relation_get_artist(wr);
-                        
+
                         if (a != NULL) {
                             char str2[1024];
                             //int len2 =
@@ -3850,7 +3857,7 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
 
                             if (strcmp(str2, "writer") == 0) {
                                 char str3[1024];
-                                //int len3 = 
+                                //int len3 =
                                 mb5_artist_get_name(
                                     a, str3, sizeof(str3));
                                 if (strstr(metadata->composer, str3) == NULL) {
@@ -3860,7 +3867,7 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
                                         strlen(metadata->composer) > 0 ? ", " : "",
                                         str3);
                                 }
-                                
+
                                 mb5_artist_get_sortname(
                                     a, str3, sizeof(str3));
                                 if (strstr(metadata->sort_composer, str3) == NULL) {
@@ -3883,8 +3890,10 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
 
 //    printf("get_mb_values() marker #1\n");
 
+
     size_t k;
     char str2[1024];
+
 
 /*
     printf("HAVE %zd artists at %p\n", nmemb_artists, artists);
@@ -3905,17 +3914,15 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
         size_t d_min = SIZE_MAX;
         size_t k_min = 0;
 
-//        printf("looking for best match\n");
 
         /* XXX Should go through all the aliases for each artist and
          * pick the closest one.  See NSYNC on Mr Music 1997 for an
          * example.  Will this work with "Beck" vs "Beck Hansen", and
          * "Prodigy" vs "The Prodigy" as well?
          */
+//        printf("looking for best match\n");
         for (k = 0; k < nmemb_artists; k++) {
-
 //            printf("    getting next artist [%p]\n", artists[k]);
-
             mb5_artist_get_name(artists[k], str2, sizeof(str2));
 
 
@@ -3937,8 +3944,7 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
                     printf("Got alias of type ->%s<-\n", str3);
                 }
             }
-#endif            
-
+#endif
 //            printf("    got ->%s<-\n", str2);
             strcpy(trial_composer, metadata->composer);
 
@@ -3958,14 +3964,14 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
              */
             char *tst = strdup(composer_ref == NULL ? "" : composer_ref);
 
-            if (strlen(tst) > strlen(trial_composer))            
+            if (strlen(tst) > strlen(trial_composer))
                 tst[strlen(trial_composer)] = '\0';
-            
+
 //            size_t d = levenshtein(composer_ref, trial_composer);
 
             wchar_t s1[1024];
             wchar_t s2[1024];
-            
+
             mbstowcs(s1, tst, 1024);
             mbstowcs(s2, trial_composer, 1024);
             size_t d = levenshtein(s1, s2);
@@ -3976,18 +3982,18 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
 /*
             if (strlen(composer_ref) > strlen(trial_composer)) {
                 size_t e = strlen(composer_ref) - strlen(trial_composer);
-                
+
                 printf("Got e %zd (from %zd - %zd) d %zd\n", e,
                        strlen(composer_ref), strlen(trial_composer), d);
 
                 if (d >= e)
                     d -= e;
             }
-*/            
+*/
 
 //            printf("    COMPARING ->%s<- and ->%s<- distance %zd\n",
 //                   composer_ref, trial_composer, d);
-            
+
             if (d < d_min) {
                 d_min = d;
                 k_min = k;
@@ -4034,7 +4040,6 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
     if (strcmp(metadata->composer, metadata->sort_composer) == 0)
         metadata->sort_composer[0] = '\0';
 
-
 //    printf("Set composer      to ->%s<-\n", metadata->composer);
 //    printf("Set sort_composer to ->%s<-\n", metadata->sort_composer);
 
@@ -4055,6 +4060,7 @@ extract_title(struct metadata *metadata)
         return ("");
     return (metadata->title);
 }
+
 
 const char *
 extract_album(struct metadata *metadata)
@@ -4288,6 +4294,7 @@ _check_disc_checksum(struct fp3_disc *disc)
     struct fp3_track *track;
     size_t m, n;
 
+
     for (m = 0; m < disc->nmemb; m++) {
         track = disc->tracks[m];
         if (track == NULL)
@@ -4319,6 +4326,7 @@ _release_has_track(struct fp3_release *release, size_t index)
     struct fp3_track *track;
     size_t i, j, k, l;
 
+
     for (i = 0; i < release->nmemb_media; i++) {
         medium = release->media[i];
         for (j = 0; j < medium->nmemb_discs; j++) {
@@ -4332,7 +4340,7 @@ _release_has_track(struct fp3_release *release, size_t index)
             }
         }
     }
-  
+
     return (0);
 }
 
@@ -4358,7 +4366,7 @@ _check_release_no_extra_tracks(struct fp3_release *release, size_t index_max)
     /* Count the number of tracks
      */
     n_tracks = 0;
-    
+
 //    printf("RELEASE %s\n", release->id);
     for (i = 0; i < release->nmemb_media; i++) {
         medium = release->media[i];
@@ -4381,7 +4389,7 @@ _check_release_no_extra_tracks(struct fp3_release *release, size_t index_max)
         }
 
 //        printf("  MEDIUM %zd: %zd tracks\n", i, n_tracks_on_largest_disc);
-        
+
         n_tracks += n_tracks_on_largest_disc;
     }
 
@@ -4405,7 +4413,6 @@ _check_release_no_extra_tracks(struct fp3_release *release, size_t index_max)
 static int
 diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
 {
- 
     /* Extract the field from the stream.
      */
 
@@ -4418,13 +4425,11 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
     struct fp3_release *release;
     struct fp3_releasegroup *releasegroup;
     size_t i, j, k, l, m, n;
-    
+
 //    char mb_title[1024];
 //    const char *stream_title;
 //    size_t nmemb, n_releases;
-    
 //    Mb5Recording mb_recording;
-
 //    struct metadata *mb_metadata;
 //    struct metadata *stream_metadata;
 
@@ -4449,7 +4454,7 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
 
 //    printf("diff_stream(): marker #0 [%zd %zd]\n",
 //           result->nmemb, release->nmemb);
-    
+
 
     /* Only considering the first release.  XXX Should probably
      * traverse the releasegroups instead.
@@ -4498,7 +4503,7 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
             continue;
 
         int releasegroup_has_matching_release = 0;
-        
+
         for (j = 0; j < releasegroup->nmemb; j++) {
             release = releasegroup->releases[j];
             if (release == NULL)
@@ -4506,7 +4511,7 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
             printf("Round 1: checking discs on release %s\n", release->id);
 
             int release_has_mismatched_disc = 0;
-            
+
             for (k = 0; k < release->nmemb_media; k++) {
                 medium = release->media[k];
                 if (medium == NULL || medium->nmemb_discs == 0)
@@ -4537,7 +4542,7 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
                  */
                 if (l >= medium->nmemb_discs) {
                     release_has_mismatched_disc = 1;
-                    
+
                 } else {
                     for (l = 0; l < medium->nmemb_discs; l++) {
                         disc = medium->discs[l];
@@ -4652,7 +4657,12 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
 
 
     /* Remove releases with extra tracks, prune empty releasegroups.
+     *
+     * This does not work so well for releases with extra disks,
+     * e.g. Coldplay Live 2003, which has a bonus DVD.  XXX Should
+     * disregard extra disks if they're not CD:s?
      */
+#if 0
     if (have_release_without_extra_tracks != 0) {
         for (i = 0; i < result->nmemb; i++) {
             releasegroup = result->releasegroups[i];
@@ -4672,8 +4682,9 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
             }
         }
     }
-    
-        
+#endif
+
+
     /* Now back to where we were...
      */
     for (i = 0; i < result->nmemb; i++) {
@@ -4724,7 +4735,7 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
                                 stream = fingerprint->streams[n];
                                 index = stream->index;
                                 printf("got index %zd\n", index);
-                                
+
                                 if (diff_stream_2(release,
                                                   medium->position,
                                                   recording->position,
@@ -5059,10 +5070,10 @@ main(int argc, char *argv[])
             free(ctxs);
             return (-1);
         }
-                
+
 //        permutation[i] = (size_t)arg; //i; // XXX not correct!
 //        permutation[(size_t)arg] = i;
-        free(fingerprint);        
+        free(fingerprint);
 
 
         /* This is done later, now.
@@ -5137,7 +5148,8 @@ main(int argc, char *argv[])
     size_t num_releases;
     size_t j; // k, l, m, n;
     int verbose = 3; //3;
-    
+
+
     switch (verbose) {
     case 0:
         break;
@@ -5180,7 +5192,7 @@ main(int argc, char *argv[])
             return (EXIT_FAILURE);
         }
         break;
-    }    
+    }
 
 
     /* Next: compute match to TOC from MusicBrainz (and use the fuzzy
@@ -5212,7 +5224,7 @@ main(int argc, char *argv[])
      * servers?  That should now be implemented.  Could probably
      * submit the queries in one loop, then wait for them in another.
      */
-    Mb5Release Release; 
+    Mb5Release Release;
 //    struct toc_score toc_score;
     int prutt_num;
 //    fp3_recording_list *recordings3;
@@ -5261,7 +5273,7 @@ main(int argc, char *argv[])
                               prutt_values) != 0) {
             ; // XXX
         }
-        
+
         for (j = 0; j < releasegroup3->nmemb; j++) {
             /* Find the MusicBrainz MediumList corresponding to the
              * release, and complete the AcoustID response
@@ -5312,7 +5324,7 @@ main(int argc, char *argv[])
              *
              * XXX This may be premature: we may not actually need to
              * calculate all these offsets?
-             */    
+             */
             if (_add_streams_offset_2(ctxs, release3) != 0)
                 exit (-1); // XXX
 
@@ -5326,6 +5338,7 @@ main(int argc, char *argv[])
 //                printf("_toc_accuraterip() failed!");
 //                exit(EXIT_FAILURE);
 //            }
+
 
             // XXX Need this for later; see remark about clone below
             release3->mb_release = Release;
@@ -5364,6 +5377,7 @@ main(int argc, char *argv[])
 
             release3->distance = toc_score.distance;
 //            release3->score = toc_score.score;
+
 
             /* XXX What about the clone business?  Would be good not
              * to have to worry about this!
@@ -5426,13 +5440,12 @@ main(int argc, char *argv[])
         //free(ctxs);
         //return (EXIT_FAILURE);
 //    }
-
 //    exit (0);
 
 
     /* Make sure the correct offsets are calculated for each stream.
      * Submit each stream for calculation.
-     */    
+     */
 //    if (_add_streams_offset(ctxs, result3) != 0)
 //        exit (-1); // XXX
 
@@ -5453,7 +5466,6 @@ main(int argc, char *argv[])
      * Could probably sort the releases above to save some time here.
      */
 //    fp3_sort_result(result3);
-
 //                exit(0); // XXX
 
 
@@ -5483,7 +5495,7 @@ main(int argc, char *argv[])
     printf("Freeing the pool...");
     fflush(stdout);
     pool_free_pc(pc2);
-    printf(" OK\n");    
+    printf(" OK\n");
 
 
     /* CHECK AGAINST ACCURATERIP
@@ -5580,8 +5592,8 @@ main(int argc, char *argv[])
                 min_distance = toc_score.distance;
                 max_score = toc_score.score;
             }
-#endif            
-                
+#endif
+
             if (1 || toc_score.distance == 0) { // XXX bypassed 2015-11-25
                 printf("    Will check AccurateRip against %s\n",
                        release3->id);
@@ -5597,7 +5609,7 @@ main(int argc, char *argv[])
 
                 if (mr_best == NULL) {
                     mr_best = mr;
-                    
+
                 } else if (mr == NULL || _match_release_compar(mr_best, mr) < 0) {
                     printf("2: Ignoring because better result already there\n");
                     fp3_erase_release(releasegroup3, j);
@@ -5609,22 +5621,20 @@ main(int argc, char *argv[])
                     _match_release_free(mr_best);
                     mr_best = mr;
                 }
-                
+
                 printf("   ... SCORING ...\n");
 
                 if (mr_best != NULL)
                     printf("    score best    %d\n", _score_release(mr_best));
                 if (mr != NULL)
                     printf("    score current %d\n", _score_release(mr));
-                    
 
                 if (mr_best != NULL && mr != NULL) {
                     printf("    comparison %d\n",
                            _match_release_compar(mr_best, mr));
                 }
-                
 //                sleep(5);
-                
+
                 if (release3->confidence_min > confidence_min_max)
                     confidence_min_max = release3->confidence_min;
 
@@ -5641,6 +5651,7 @@ main(int argc, char *argv[])
             }
         }
 
+
         /* Remove the releasegroup if all its releases are erased.
          */
         if (releasegroup3->nmemb == 0) {
@@ -5649,7 +5660,7 @@ main(int argc, char *argv[])
         }
     }
 
-    accuraterip_free(ar_ctx);    
+    accuraterip_free(ar_ctx);
 
 
     /* Pruning step, added 2015-11-10: remove all releases with
@@ -5662,10 +5673,10 @@ main(int argc, char *argv[])
      */
     for (i = 0; i < result3->nmemb; i++) {
         releasegroup3 = result3->releasegroups[i];
-        
+
         for (j = 0; j < releasegroup3->nmemb; j++) {
             release3 = releasegroup3->releases[j];
-            
+
 
             /* Ignore the score for this comparison, because it may
              * not be all that informative
@@ -5676,8 +5687,6 @@ main(int argc, char *argv[])
              * XXX Evil duplication w.r.t. above.
              */
             if (confidence_min_max > 0 && release3->confidence_min < confidence_min_max) {
-
-
                 printf("Will remove because %d < %d\n",
                        release3->confidence_min, confidence_min_max);
                 fp3_erase_release(releasegroup3, j);
@@ -5685,7 +5694,8 @@ main(int argc, char *argv[])
                 continue;
             }
         }
-        
+
+
         /* Remove the releasegroup if all its releases are erased.
          *
          * XXX Evil duplication w.r.t. above.
@@ -5694,7 +5704,7 @@ main(int argc, char *argv[])
             fp3_erase_releasegroup(result3, i);
             i--;
         }
-    }    
+    }
 
 
     /* ORDER BY levenshtein distance.  Had 13 seconds for Overbombing
@@ -5711,11 +5721,11 @@ main(int argc, char *argv[])
     struct fp3_medium *medium3;
     struct fp3_disc *disc3;
     struct fp3_track *track3;
-    
+
 
     for (i = 0; i < result3->nmemb; i++) {
         releasegroup3 = result3->releasegroups[i];
-        
+
         for (j = 0; j < releasegroup3->nmemb; j++) {
             release3 = releasegroup3->releases[j];
             release_distance = 0;
@@ -5726,14 +5736,14 @@ main(int argc, char *argv[])
                 fp3_sort_medium(medium3); // XXX Placement!  Required
                                           // for Kauffman's Puccini
                                           // album.
-                
+
                 for (l = 0; l < medium3->nmemb_discs; l++) {
                     disc3 = medium3->discs[l];
 
 //                    fp3_sort_disc(disc3); // XXX Placement!  Have not
                                           // seen this be necessary
                                           // quite yet.
-                    
+
                     for (m = 0; m < disc3->nmemb; m++) {
                         track3 = disc3->tracks[m];
 
@@ -5799,13 +5809,13 @@ main(int argc, char *argv[])
             }
 
 
-/*            
+/*
             printf("HATTNE STUPID CHECK:\n");
             for (size_t ii = 0; ii < release3->nmemb; ii++) {
                 struct fp3_recording_list *recordings = release3->streams[ii];
                 for (size_t jj = 0; jj < recordings->nmemb; jj++) {
                     struct fp3_recording *recording = recordings->recordings[jj];
-                    
+
                     printf("  assigned %d %d %d %d\n",
                            recording->version,
                            recording->confidence,
@@ -5822,10 +5832,10 @@ main(int argc, char *argv[])
 
     for (i = 0; i < result3->nmemb; i++) {
         releasegroup3 = result3->releasegroups[i];
-        
+
         for (j = 0; j < releasegroup3->nmemb; j++) {
             release3 = releasegroup3->releases[j];
-            
+
 
             /* Ignore the score for this comparison, because it may
              * not be all that informative
@@ -5836,8 +5846,6 @@ main(int argc, char *argv[])
              * XXX Evil duplication w.r.t. above.
              */
             if (metadata_min_distance == 0 && release3->metadata_distance > metadata_min_distance) {
-
-
                 printf("Will remove because %zd > %zd\n",
                        release3->metadata_distance, metadata_min_distance);
                 fp3_erase_release(releasegroup3, j);
@@ -5845,7 +5853,8 @@ main(int argc, char *argv[])
                 continue;
             }
         }
-        
+
+
         /* Remove the releasegroup if all its releases are erased.
          *
          * XXX Evil duplication w.r.t. above.
@@ -5911,7 +5920,8 @@ artist-rels"
 
         for (j = 0; j < releasegroup3->nmemb; j++) {
             release3 = releasegroup3->releases[j];
-            
+
+
             /* XXX THIS IS UNSTABLE: sometimes buggles never proceeds
              * to "leaving check".  Update: it appears the error (if
              * any) occurrs elsewhere.
@@ -5960,7 +5970,6 @@ artist-rels"
 
 //            Mb5ReleaseList rl = mb5_metadata_get_releaselist(metadata);
 #endif
-
         }
 
         printf("  left inner loop, %zd\n", releasegroup3->nmemb);
@@ -5975,7 +5984,7 @@ artist-rels"
 
     //HATTNE_DUMP
 //    fp3_result_dump(result3, 2, 0);
-        
+
 
     /* XXX Now do the diff against the metadata in the streams.
      *
@@ -5986,8 +5995,8 @@ artist-rels"
     printf("Calling diff_stream()\n");
     diff_stream(result3, ctxs);
     printf("Returned from diff_stream()\n");
-
 //    exit(0);
+
 
 #if 0
     for (i = 0; i < fingerprint->nmemb; i++) {
@@ -6078,7 +6087,6 @@ artist-rels"
                 //prutt3["recording"] = "04f46f0a-485a-49f9-a464-fd02c36247d8";
                 //prutt3["recording"] = "49c240be-6c06-4c0b-9858-8e803c0afd0f|fb1e9464-fb12-4800-bfd5-d4ce82318468";
                 //prutt3["recording"] = "98f50087-abaf-4764-947b-f70268eac88a";
-
                 prutt3["inc"] = "media recordings";
 
                 MusicBrainz5::CMetadata metadata = Query.Query(
@@ -6087,7 +6095,7 @@ artist-rels"
                 printf("sent the query, got %p\n", metadata.ReleaseList());
 
                 MusicBrainz5::CReleaseList* rl = metadata.ReleaseList();
-                
+
                 for (int j = 0; j < rl->NumItems(); j++) {
                     MusicBrainz5::CRelease* r = rl->Item(j);
                     MusicBrainz5::CMediumList *ml = r->MediumList();
@@ -6097,7 +6105,7 @@ artist-rels"
                     for (int k = 0; k < ml->NumItems(); k++) {
                         MusicBrainz5::CMedium *m = ml->Item(k);
                         MusicBrainz5::CTrackList *tl = m->TrackList();
-                        
+
                         printf("  Got medium, tracklist %p %d\n",
                                tl, tl->NumItems());
                         for (int l = 0; l < tl->NumItems(); l++) {
@@ -6111,6 +6119,7 @@ artist-rels"
                 //MusicBrainz5::CMetadata metadata = Query.Query(
                 //    "recording", RecordingID, "", prutt);
 
+
 #if 0
                 MusicBrainz5::CReleaseGroup* rg = metadata.ReleaseGroup();
                 MusicBrainz5::CReleaseList* rl = rg->ReleaseList();
@@ -6119,7 +6128,7 @@ artist-rels"
                 for (int j = 0; j < rl->NumItems(); j++) {
                     MusicBrainz5::CRelease *r = rl->Item(j);
                     MusicBrainz5::CMediumList *ml = r->MediumList();
-                    
+
                     printf("Got release ->%s<-\n", r->Title().c_str());
 
                     for (int k = 0; k < ml->NumItems(); k++) {
@@ -6127,7 +6136,6 @@ artist-rels"
                         MusicBrainz5::CTrackList *tl = m->TrackList();
 
                         printf("  Got medium, tracklist %p %d\n", tl, tl->NumItems());
-
 
                         for (int l = 0; l < tl->NumItems(); l++) {
                             MusicBrainz5::CTrack *t = tl->Item(l);
@@ -6149,6 +6157,7 @@ artist-rels"
 
                 MusicBrainz5::CRelease *r;
 
+
                 printf("The releasegrouplist has %p\n", r);
                 std::cout << "Release group ID: " << r->ID()
                           << " title: " << r->ReleaseGroup()->Title()
@@ -6156,6 +6165,7 @@ artist-rels"
 //                          << " ITEMS " << ml->NumItems() << std::endl;
 
                 exit(0);
+
 
                 /* Second check: check that TOC matches. This will
                  * order order unmatched tracks.  If it does not
@@ -6192,15 +6202,14 @@ artist-rels"
                 for (int j = 0; j < ml->NumItems(); j++) {
 /*
                     MusicBrainz5::CMedium* m = ml->Item(j);
-
                     MusicBrainz5::CDiscList* dl = m->DiscList();
 
                     std::cout << "  Have " << dl->NumItems()
                               << " DiscID:s" << std::endl;
-                
+
                     for (int k = 0; k < dl->NumItems(); k++) {
                         MusicBrainz5::CDisc* d = dl->Item(k);
-                    
+
                         //if (k > 0)
                         //    continue;
 
@@ -6210,6 +6219,7 @@ artist-rels"
                                   << std::endl;
                     }
 */
+
 
 #if 0
                     int total_length = 0;
@@ -6222,6 +6232,7 @@ artist-rels"
                         MusicBrainz5::CTrack* t = tl->Item(l);
                         //MusicBrainz5::CRecording* r = t->Recording();
 
+
 #if 0
                         /* Make sure it t->Position() and r->ID() match up
                          * with the fingerprints.
@@ -6229,7 +6240,7 @@ artist-rels"
                         std::vector<std::pair<std::string, float> >& rs =
                             releases[t->Position()];
                         std::vector<std::pair<std::string, float> >::const_iterator rsit;
-                    
+
                         for (rsit = rs.begin(); rsit != rs.end(); rsit++) {
                             std::cout << "    Comparing " << rsit->first
                                       << " and " << r->ID() << std::endl;
@@ -6269,6 +6280,7 @@ artist-rels"
 
     printf("Thank you, call again!\n");
     return (EXIT_SUCCESS);
+
 
 #if 0
     std::string DiscID("ozf2dSfVtY9PThztnd6NIWM5EcQ-");

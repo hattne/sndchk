@@ -192,7 +192,7 @@ _score_release(const struct _match_release *mr)
 
     if (mr->nmemb == 0)
         return (0);
-    
+
     min_confidence = mr->recordings[0].confidence_v1 + mr->recordings[0].confidence_v2;
     for (i = 1; i < mr->nmemb; i++) {
         if (mr->recordings[i].confidence_v1 + mr->recordings[i].confidence_v2 < min_confidence)
@@ -229,7 +229,7 @@ _match_release_compar(struct _match_release *mr1, struct _match_release *mr2)
     printf("Got min_confidence1 %d, min_confidence2 %d\n",
            min_confidence1,
            min_confidence2);
-    
+
     if (min_confidence1 > min_confidence2)
         return (-1);
     else if (min_confidence1 < min_confidence2)
@@ -275,7 +275,7 @@ _match_release_compar(struct _match_release *mr1, struct _match_release *mr2)
         match_foobar[i].confidence < match_disc.confidence) {
         match_disc.confidence = match_foobar[i].confidence;
     }
-                
+
     if (match_disc.confidence_max == 0 ||
         match_foobar[i].confidence_max > match_disc.confidence_max) {
         match_disc.confidence_max = match_foobar[i].confidence_max;
@@ -291,7 +291,7 @@ _match_release_compar(struct _match_release *mr1, struct _match_release *mr2)
 struct _position
 {
     int medium;
-    
+
     int track;
 };
 #endif
@@ -327,7 +327,6 @@ struct accuraterip_context
     /* XXX Mapper
      */
     ne_session *session_localhost;
-
 
     /* The cache, a list of parsed responses
      *
@@ -422,14 +421,14 @@ accuraterip_free(struct accuraterip_context *ctx)
     if (ctx->cache != NULL) {
         for (i = 0; i < ctx->nmemb; i++) {
             response = ctx->cache + i;
-        
+
             for (j = 0; j < response->nmemb; j++)
                 free(response->entries[j].chunks);
             free(response->entries);
 
             if (response->error != NULL)
                 free(response->error);
-        
+
             if (response->path != NULL)
                 free(response->path);
         }
@@ -494,7 +493,7 @@ _dump_ar_entry(const struct _entry *entry)
     printf("FreeDBIdent:            0x%08x\n", entry->disc_cddb);
     printf("TrackOffsetsAdded:      %d\n", entry->disc_id1);
     printf("TrackOffsetsMultiplied: %d\n", entry->disc_id2);
-    
+
     for (i = 0; i < entry->track_count; i++) {
         chunk = entry->chunks + i;
 
@@ -535,7 +534,7 @@ _block_reader(void *userdata, const char *buf, size_t len)
     size_t i;
 
 //    printf("    _block_reader() %p %zd\n", buf, len);
-    
+
 
     /* If this is the last block, i.e. if the callback is invoked with
      * len == 0, exit successfully if and only if all the buffered
@@ -616,7 +615,7 @@ _block_reader(void *userdata, const char *buf, size_t len)
 //    for (i = 0; i < ud->result->nmemb; i++)
 //        _dump_ar_entry(ud->result->entries + i);
 //    exit(0);
-    
+
     return (0);
 }
 
@@ -711,7 +710,7 @@ _block_reader_eac(void *userdata, const char *buf, size_t len)
      */
     if (len > 0)
         return (0);
-    
+
     buf32 = ud->buf;
     if (buf32 + 3 > (const uint32_t *)(ud->buf + ud->len)) {
         ne_set_error(ud->session_eac, "XXX");
@@ -1727,7 +1726,7 @@ _get_localhost(struct accuraterip_context *ctx, const char *discid, const char *
     }
 #endif
 
-    
+
     /* The return value of ne_request_dispatch() only indicates
      * whether the request was sent and its response was read
      * successfully.  The status as retrieved by ne_get_status() only
@@ -1923,10 +1922,10 @@ accuraterip_localhost_get(struct accuraterip_context *ctx, Mb5Disc disc)
         exit(0);
         return (NULL);
     }
-    
+
 //    printf("#2: Exiting with error, response=%p\n", response);
 //    exit(0);
-    
+
     return (response);
 }
 
@@ -1992,8 +1991,8 @@ _next_track(
         }
         if (j == recordings->nmemb)
             continue;
-        
-        
+
+
         /* Update the smallest position if this is the first valid
          * track, or if the current position is the smallest so far.
          */
@@ -2095,7 +2094,7 @@ _medium_at_position(Mb5MediumList medium_list, int position)
         if (medium != NULL && mb5_medium_get_position(medium) == position)
             return (medium);
     }
-    
+
     return (NULL);
 }
 #endif
@@ -2121,7 +2120,7 @@ _first_configuration(
     Mb5Medium medium;
     Mb5TrackList track_list;
     size_t i;
-    
+
     for (i = 0; i < release->nmemb; i++) {
         pos[i].medium = _next_medium(medium_list, release->recordings2[i], 0);
         if (pos[i].medium < 0)
@@ -2139,7 +2138,7 @@ _first_configuration(
         if (pos[i].track < 0)
             return (-1);
     }
-    
+
     return (0);
 }
 #endif
@@ -2180,7 +2179,7 @@ _next_configuration(
         medium = _medium_at_position(medium_list, pos[i].medium);
         if (medium == NULL)
             return (-1);
-        
+
         track_list = mb5_medium_get_tracklist(medium);
         if (track_list == NULL)
             return (-1);
@@ -2189,18 +2188,17 @@ _next_configuration(
             track_list, release->recordings2[i], pos[i].track + 1);
         if (newpos > 0) {
             pos[i].track = newpos;
-            
+
             while (i-- > 0) {
                 pos[i].medium = _next_medium(
                     medium_list, release->recordings2[i], 0);
                 if (pos[i].medium < 0)
                     return (-1);
-                
 
                 medium = _medium_at_position(medium_list, pos[i].medium);
                 if (medium == NULL)
                     return (-1);
-                
+
                 track_list = mb5_medium_get_tracklist(medium);
                 if (track_list == NULL)
                     return (-1);
@@ -2210,7 +2208,7 @@ _next_configuration(
                 if (pos[i].track < 0)
                     return (-1);
             }
-            
+
             return (0);
         }
     }
@@ -2233,15 +2231,15 @@ _next_configuration(
                     medium_list, release->recordings2[i], 0);
                 if (pos[i].medium < 0)
                     return (-1);
-                
+
                 medium = _medium_at_position(medium_list, pos[i].medium);
                 if (medium == NULL)
                     return (-1);
-                
+
                 track_list = mb5_medium_get_tracklist(medium);
                 if (track_list == NULL)
                     return (-1);
-                
+
                 pos[i].track = _next_track(
                     track_list, release->recordings2[i], 0);
                 if (pos[i].track < 0)
@@ -2251,7 +2249,7 @@ _next_configuration(
             return (0);
         }
     }
-    
+
     return (+1);
 }
 #endif
@@ -2304,8 +2302,8 @@ _assign_position(struct fp3_release *release, Mb5Medium medium)
     struct fp3_recording_list *recordings;
     size_t j, k;
     int i;
-    
-    
+
+
     /* MusicBrainz identifiers are 36 characters, plus one character
      * for NULL-termination.
      */
@@ -2355,7 +2353,7 @@ _assign_position(struct fp3_release *release, Mb5Medium medium)
     }
 
     ne_buffer_destroy(id);
-    
+
     return (0);
 }
 #endif
@@ -2460,7 +2458,7 @@ _score_track(const struct _cache *response,
             printf("    Found offset(s) (using 0x%08X)\n",
                    chunk->unk);
         }
-        
+
         result = fingersum_check_checksum2(
             ctx_leader, ctx, ctx_trailer, chunk->CRC);
         if (result != NULL) {
@@ -2570,7 +2568,6 @@ _score_configuration(struct accuraterip_context *ctx, Mb5MediumList medium_list,
 
     // XXX Use confidence_max to distinguish between not_found and
     // mismatch.
-    
 
     /* XXX Could extract all the CRC:s and store them, but that would
      * make memory management a bit hairier
@@ -2591,10 +2588,10 @@ _score_configuration(struct accuraterip_context *ctx, Mb5MediumList medium_list,
     match_disc_best.offset = 0;
 //    Mb5Disc disc_best;
 
-
     struct _match *match_medium;
     void *p;
-    
+
+
     match_medium = NULL;
 
     for (i = 0; i < mb5_medium_list_size(medium_list); i++) {
@@ -2615,7 +2612,7 @@ _score_configuration(struct accuraterip_context *ctx, Mb5MediumList medium_list,
         track_list = mb5_medium_get_tracklist(medium);
         if (track_list == NULL)
             continue; // XXX update scores
-        
+
         ntracks = mb5_track_list_size(track_list);
 
         /* Try all the discs for the medium XXX then choose the best
@@ -2688,7 +2685,7 @@ _score_configuration(struct accuraterip_context *ctx, Mb5MediumList medium_list,
                    "                        url ->%s<-\n", id->data, path);
             response = _get_accuraterip(ctx, path);
             free(path);
-            
+
             if (response == NULL || response->status < 0) {
                 ne_buffer_destroy(id);
                 printf("FATAL ERROR: ->%s<-\n", ne_get_error(ctx->session));
@@ -2760,7 +2757,7 @@ _score_configuration(struct accuraterip_context *ctx, Mb5MediumList medium_list,
                     match_medium[k].confidence < match_disc.confidence) {
                     match_disc.confidence = match_medium[k].confidence;
                 }
-                
+
                 if (match_disc.confidence_max == 0 ||
                     match_medium[k].confidence_max > match_disc.confidence_max) {
                     match_disc.confidence_max = match_medium[k].confidence_max;
@@ -2821,9 +2818,9 @@ _score_configuration(struct accuraterip_context *ctx, Mb5MediumList medium_list,
                     }
                 }
             }
+
             printf("best disc %d %d\n",
                    match_disc_best.confidence, match_disc_best.confidence_max);
-            
         } // disc loop [over j]
 
 
@@ -2865,7 +2862,7 @@ struct _cfg2_entry
     /* Number of streams
      */
     size_t nmemb;
-    
+
     /* XXX Should be constant contexts.  In particular, must not be
      * freed!
      *
@@ -2915,7 +2912,7 @@ _cfg2_entry_new()
 
 #if 0
 static void
-_cfg2_entry_free(struct _cfg2_entry *entry) 
+_cfg2_entry_free(struct _cfg2_entry *entry)
 {
     if (entry->ctxs != NULL)
         free(entry->ctxs);
@@ -3022,7 +3019,7 @@ _cfg2_release_new(Mb5MediumList medium_list, struct fp3_release *release, struct
         medium = mb5_medium_list_item(medium_list, i);
         if (medium == NULL)
             continue;
-        
+
         track_list = mb5_medium_get_tracklist(medium);
         if (track_list == NULL)
             continue;
@@ -3038,7 +3035,7 @@ _cfg2_release_new(Mb5MediumList medium_list, struct fp3_release *release, struct
             recording = mb5_track_get_recording(track);
             if (recording == NULL)
                 continue;
-    
+
             ne_buffer_grow(id, mb5_recording_get_id(recording, NULL, 0) + 1);
             mb5_recording_get_id(recording, id->data, id->length);
             ne_buffer_altered(id);
@@ -3142,7 +3139,7 @@ _cfg2_score_configuration(
                 continue;
 
             t = track->streams[track->selected].index;
-            
+
 //            if (cfg->media[i].streams[j] + 1 > match_release->nmemb)
             if (t + 1 > match_release->nmemb)
                 match_release->nmemb = t + 1;
@@ -3264,7 +3261,7 @@ _cfg2_score_configuration(
 */
 
                 // XXX INDEXING BROKEN BELOW!  Assumes position in
-                 // array is same as position on disc.
+                // array is same as position on disc.
                 match_stream = &match_release->recordings[t];
                 if (_score_track(response,
                                  j,
@@ -3424,7 +3421,7 @@ _cfg2_apply_accuraterip_result(Mb5MediumList MediumList,
 //                result->recordings[i].version;
 
 // 2016-08-25: migrated to fp3_track -- XXX ensure that it is written there!
-/*            
+/*
             recordings->recordings[0]->confidence_v1 =
                 result->recordings[i].confidence_v1;
             recordings->recordings[0]->confidence_v2 =
@@ -3487,7 +3484,7 @@ _cfg3_check_release(struct accuraterip_context *ctx,
     Mb5Medium Medium;
     Mb5Medium Disc;
     char *path;
-    const struct _cache *response;                
+    const struct _cache *response;
     struct fingersum_context *leader, *center, *trailer;
 
 
@@ -3524,7 +3521,7 @@ _cfg3_check_release(struct accuraterip_context *ctx,
             printf("HATTNE 3 is checking disc ->%s<-\n", disc->id);
 #if 0
             response = _get_accuraterip(ctx, path);
-#else            
+#else
             response = _get_localhost(ctx, disc->id, path);
 #endif
             free(path);
@@ -3571,7 +3568,7 @@ _cfg3_check_release(struct accuraterip_context *ctx,
                     if (result_3 != NULL) {
                         for (m = 0; m < result_3->nmemb; m++) {
 
-#if 0                            
+#if 0
 printf("%02zd %02zd %02zd: COMPARING v1 0x%08x and 0x%08x [offset %lld, confidence %d]\n",
 k, l, m, result_3->checksums[m].checksum_v1, chunk->CRC, result_3->checksums[m].offset, chunk->confidence);
 printf("%02zd %02zd %02zd: COMPARING v2 0x%08x and 0x%08x [offset %lld, confidence %d]\n",
@@ -3588,7 +3585,7 @@ k, l, m, result_3->checksums[m].checksum_v2, chunk->CRC, result_3->checksums[m].
                         }
                     }
                 }
-#else                
+#else
                 size_t l;
                 struct _match match;
 
@@ -3700,7 +3697,7 @@ k, l, m, result_3->checksums[m].checksum_v2, chunk->CRC, result_3->checksums[m].
                                 printf("  CRC32 net:  0x%08x\n",
                                        block_eac->crc32);
 //                                sleep(3);
-#endif                                
+#endif
 
                                 if (fp3_track_add_eac_checksum(
                                         track,
@@ -3857,12 +3854,10 @@ accuraterip_url(struct accuraterip_context *ctx,
 //        _match_release_free(result_best); // Cannot free return value!
     }
 
-
 //    printf("All done, call again! Confidence %d, confidence_max %d\n",
 //           match_release_best.confidence, match_release_best.confidence_max);
 
     return (result_best);
-    
 #else
     int ret;
     struct _match match_release, match_release_best;
@@ -3915,6 +3910,7 @@ accuraterip_url(struct accuraterip_context *ctx,
          */
         printf("THIS SHOULD NOT HAPPEN\n");
     }
+
 
     /* XXX Prune all but the best configuration, or prune all broken
      * configurations -- see the score function.

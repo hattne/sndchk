@@ -64,7 +64,7 @@ STRUCTURES_BEGIN_C_DECLS
  * XXX Except the capacity business runs into trouble, because we must
  * mark slots (such as tracks on a medium) as invalid without
  * deallocating them.
- * 
+ *
  * @bug XXX Oddity with opaque structures: clang emits warnings if the
  *      first function with an opaque structure takes it as argument.
  *      If first function declares it as a return value, all is well.
@@ -114,7 +114,7 @@ struct fp3_fingerprint
 //    float score;
 
     struct fp3_stream **streams;
-    
+
     size_t nmemb;
     size_t capacity;
 };
@@ -157,7 +157,7 @@ struct fp3_recording
      * actually need!  It is the same as the index above.
      */
 //    size_t position_stream;
-    
+
     /* AcoustID score
      *
      * Initialised to zero (XXX or is it NAN) by all functions in this
@@ -223,7 +223,7 @@ struct fp3_recording_list
 
 };
 
-    
+
 /* The AccurateRip checksums are offset-dependent.  XXX Why is this
  * not an offset_list?  I think it is in the new code!
  */
@@ -289,7 +289,7 @@ struct fp3_ar
      * This is an offset-independent checksum.  "CRC32 hash" in XLD.
      */
     uint32_t crc32;
-    
+
     /**
      * @brief CRC32 checksum of all non-zero samples
      *
@@ -325,12 +325,10 @@ struct fp3_track
     size_t nmemb;
     size_t capacity;
 
-
     /* Index of the selected stream.  XXX is this sane?
      */
 //    size_t selected;
-    
-    
+
     /* Position of the track on the medium.  XXX One-based or what?
      */
     size_t position;
@@ -464,7 +462,7 @@ struct fp3_medium
      */
     size_t position;
 };
-    
+
 
 struct fp3_release
 {
@@ -833,7 +831,7 @@ fp3_find_releasegroup(struct fp3_result *result, const char *id);
 
 /*********
  * CLEAR *
- *********/    
+ *********/
 /* XXX Is this the proper name?  What's it called in the STL?
  */
 void

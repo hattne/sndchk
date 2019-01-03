@@ -344,7 +344,7 @@ _start(void *arg)
          * returned by SIMPLEQ_FIRST(3).  Because this does not really
          * matter, it is a benign race condition.
          */
-        printf("    Waiting for data on %p\n", _pool_requests_sem);
+//        printf("    Waiting for data on %p\n", _pool_requests_sem);
         if (sem_wait(_pool_requests_sem) != 0) {
             if (errno == EINTR) {
                 errno = 0;
@@ -352,7 +352,7 @@ _start(void *arg)
             }
             return (NULL);
         }
-        printf("    Got the semaphore\n");
+//        printf("    Got the semaphore\n");
 
 
         /* Disable cancellation to ensure atomicity: a job must be
@@ -374,12 +374,12 @@ _start(void *arg)
          */
         if (pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldstate) != 0)
             return (NULL);
-        printf("    set the state\n");
+//        printf("    set the state\n");
         if (pthread_mutex_lock(&_mutex) != 0) {
             pthread_setcancelstate(oldstate, NULL);
             return (NULL);
         }
-        printf("    locked the mutex\n");
+//        printf("    locked the mutex\n");
 
         if (SIMPLEQ_EMPTY(&_pool_requests)) {
             if (pthread_mutex_unlock(&_mutex) != 0) {
@@ -390,7 +390,7 @@ _start(void *arg)
                 return (NULL);
             continue;
         }
-            
+
         r = SIMPLEQ_FIRST(&_pool_requests);
         SIMPLEQ_REMOVE_HEAD(&_pool_requests, requests);
         if (r == NULL)
@@ -660,11 +660,11 @@ pool_free_pc(struct pool_context *pc)
      * XXX Maybe want a separate function for removing a job from the
      * pool context?  Or subtracting the inprogress counter?
      */
-    printf("  deactivated\n");
+//    printf("  deactivated\n");
     if (pthread_mutex_lock(&_mutex) == 0) {
         printf("    locked again\n");
         while (!SIMPLEQ_EMPTY(&_pool_requests)) {
-            printf("    loop #1\n");
+//            printf("    loop #1\n");
             r = SIMPLEQ_FIRST(&_pool_requests);
             if (r->result != pc)
                 break;
@@ -679,7 +679,7 @@ pool_free_pc(struct pool_context *pc)
 
         if (!SIMPLEQ_EMPTY(&_pool_requests)) {
             for (r = SIMPLEQ_FIRST(&_pool_requests); ; ) {
-                printf("    loop #2\n");
+//                printf("    loop #2\n");
                 s = SIMPLEQ_NEXT(r, requests);
                 if (s == NULL)
                     break;
@@ -695,7 +695,7 @@ pool_free_pc(struct pool_context *pc)
                 }
             }
         }
-        
+
         printf("  unlocking\n");
         pthread_mutex_unlock(&_mutex);
     }
@@ -920,7 +920,7 @@ get_result(struct pool_context *pc,
             pthread_mutex_unlock(&pc->mutex);
             errno = ENOMSG;
             return (-1);
-        }                
+        }
 
         r = SIMPLEQ_FIRST(&pc->results);
         if (r == NULL)

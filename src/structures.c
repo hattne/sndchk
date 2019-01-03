@@ -70,7 +70,7 @@ fp3_new_track()
 
     track->confidence_eac_max = 0;
     track->confidence_eac_total = 0;
-    
+
 //    track->offset = 0;
     track->checksums = NULL;
     track->nmemb_checksums = 0;
@@ -125,7 +125,7 @@ struct fp3_fingerprint *
 fp3_new_fingerprint()
 {
     struct fp3_fingerprint *fingerprint;
-    
+
     fingerprint = malloc(sizeof(struct fp3_fingerprint));
     if (fingerprint == NULL)
         return (NULL);
@@ -143,7 +143,7 @@ struct fp3_medium *
 fp3_new_medium()
 {
     struct fp3_medium *medium;
-    
+
     medium = malloc(sizeof(struct fp3_medium));
     if (medium == NULL)
         return (NULL);
@@ -324,6 +324,7 @@ fp3_stream_free(struct fp3_stream *stream)
     free(stream);
 }
 
+
 void
 fp3_free_track(struct fp3_track *track)
 {
@@ -357,7 +358,7 @@ fp3_free_disc(struct fp3_disc *disc)
                 // recordings are "stolen" and owned by someone else.
                 // Might need a deep copy for recordings.
                 ; // fp3_free_recording_list(disc->recordings[i]);
-                
+
                 fp3_free_track(disc->tracks[i]);
             }
         }
@@ -475,7 +476,7 @@ void
 fp3_free_releasegroup(struct fp3_releasegroup *releasegroup)
 {
     size_t i;
-    
+
     for (i = 0; i < releasegroup->capacity; i++) {
         if (releasegroup->releases[i] != NULL)
             fp3_free_release(releasegroup->releases[i]);
@@ -556,7 +557,7 @@ fp3_clear_recordings(struct fp3_recording_list *recordings)
 {
     struct fp3_recording *recording;
     size_t i;
-    
+
     for (i = 0; i < recordings->nmemb; i++){
         recording = recordings->recordings[i];
         if (recording != NULL)
@@ -599,13 +600,13 @@ fp3_clear_disc(struct fp3_disc *disc)
         free(disc->id);
         disc->id = NULL;
     }
-    
+
     for (i = 0; i < disc->nmemb; i++) {
         if (disc->tracks[i] != NULL)
             fp3_clear_track(disc->tracks[i]);
     }
     disc->nmemb = 0;
-    
+
     if (disc->offset_list != NULL)
         fp3_clear_offset_list(disc->offset_list);
 }
@@ -620,7 +621,7 @@ fp3_clear_medium(struct fp3_medium *medium)
 
 //    printf("Clearing medium at %p...", medium);
 //    fflush(stdout);
-    
+
     for (i = 0; i < medium->nmemb; i++) {
         if (medium->discids[i] != NULL) {
             free(medium->discids[i]);
@@ -644,7 +645,7 @@ fp3_clear_medium(struct fp3_medium *medium)
         medium->tracks[i] = NULL;
     }
     medium->nmemb_tracks = 0;
-    
+
 //    printf("DONE\n");
 }
 
@@ -755,7 +756,7 @@ fp3_recording_add_fingerprint(
     struct fp3_fingerprint *dst;
     void *p;
     size_t i;
-    
+
     if (recording->capacity <= recording->nmemb) {
         p = realloc(
             recording->fingerprints,
@@ -889,7 +890,7 @@ fp3_track_add_index(struct fp3_track *track, size_t index)
         if (track->indices[i] == index)
             return (0);
     }
-    
+
     if (track->capacity <= track->nmemb) {
         p = realloc(track->indices, (track->capacity + 1) * sizeof(size_t));
         if (p == NULL)
@@ -1070,7 +1071,7 @@ fp3_medium_add_disc(struct fp3_medium *medium, const struct fp3_disc *disc)
     struct fp3_disc *dst;
     void *p;
     size_t i;
-    
+
 //    printf("_mad() marker #0\n");
     if (medium->capacity_discs <= medium->nmemb_discs) {
         p = realloc(
@@ -1091,7 +1092,6 @@ fp3_medium_add_disc(struct fp3_medium *medium, const struct fp3_disc *disc)
         if (dst == NULL)
             return (NULL);
     }
-    
 
 //    printf("_mad() marker #2\n");
     if (disc != NULL) {
@@ -1276,7 +1276,7 @@ fp3_add_discid(struct fp3_medium *medium, const char *id)
         medium->discids = p;
         medium->capacity += 1;
     }
-    
+
     medium->discids[medium->nmemb] = strdup(id); // XXX THIS MODULE
                                                  // SHOULD NEVER
                                                  // STRDUP?
@@ -1302,7 +1302,7 @@ fp3_recording_list_add_recording(struct fp3_recording_list *recording_list,
         if (p == NULL)
             return (NULL);
         recording_list->recordings = p;
-        recording_list->recordings[recording_list->capacity++] = NULL;        
+        recording_list->recordings[recording_list->capacity++] = NULL;
     }
 
     dst = recording_list->recordings[recording_list->nmemb];
@@ -1587,7 +1587,7 @@ fp3_grow_disc(struct fp3_disc *disc, size_t nmemb)
         } while (++disc->capacity < nmemb);
         disc->nmemb = disc->capacity;
     }
-    
+
     return (0);
 }
 #endif
@@ -1755,7 +1755,7 @@ fp3_release_find_recording_by_index(
     struct fp3_stream *stream;
 //    struct fp3_recording_list *track;
     size_t i, j, k, l; //, m;
-    
+
     for (i = 0; i < release->nmemb_media; i++) {
         medium = release->media[i];
 
@@ -1912,7 +1912,7 @@ fp3_fingerprint_dump(
 
     tot = printf("%*sFingerprint %s\n",
                  level * indentation, "", fingerprint->id);
-    
+
     if (tot < 0)
         return (tot);
 
@@ -1956,7 +1956,7 @@ fp3_recording_list_dump(
 {
     size_t i;
     int ret, tot;
-    
+
     tot = printf("%*sTrack (%zd recordings)\n",
                  level * indentation, "", recording_list->nmemb);
     if (tot < 0)
@@ -1969,7 +1969,7 @@ fp3_recording_list_dump(
             return (ret);
     }
 
-#if 0                        
+#if 0
     /* XXX Fishy: unassigned?
      */
     if (recording_list == NULL || recording_list->nmemb == 0) {
@@ -1988,7 +1988,7 @@ fp3_recording_list_dump(
 //            recording->position_medium,
 //            recording->position_track,
             recording->score);
-    }              
+    }
 #endif
 
     return (tot);
@@ -2019,13 +2019,7 @@ fp3_track_dump(const struct fp3_track *track, int indentation, int level)
     tot += ret = printf("\n");
     if (ret < 0)
         return (ret);
-
-/*** TEST ***/
-    
-    printf("HAVE %zd checksums\n", track->nmemb_checksums);
-
-/*** TEST ***/
-
+    printf("HAVE %zd checksums\n", track->nmemb_checksums); // *** TEST ***
 
     return (tot);
 }
@@ -2105,7 +2099,7 @@ fp3_release_dump(const struct fp3_release *release, int indentation, int level)
     int ret, tot;
 
 //    printf("    release       at %p\n", release);
-    
+
 //    tot = printf("%*sRelease %s\n", level * indentation, "", release->id);
     tot = printf("%*sRelease %s at %p\n", level * indentation, "", release->id, release); // XXX
     if (tot < 0)
@@ -2114,7 +2108,7 @@ fp3_release_dump(const struct fp3_release *release, int indentation, int level)
 //    printf("    streams       at %p (%zd)\n", release, release->nmemb);
 //    for (i = 0; i < release->nmemb; i++)
 //        printf("      Stream %zd %p\n", i, release->streams[i]);
-    
+
     for (i = 0; i < release->nmemb_media; i++) {
 
         if (release->media[i] == NULL) // XXX
@@ -2131,7 +2125,7 @@ fp3_release_dump(const struct fp3_release *release, int indentation, int level)
 
 int
 fp3_releasegroup_dump(
-    const struct fp3_releasegroup *releasegroup, int indentation, int level) 
+    const struct fp3_releasegroup *releasegroup, int indentation, int level)
 {
     size_t i;
     int ret, tot;
@@ -2290,7 +2284,7 @@ fp3_recording_list_dup(const struct fp3_recording_list *recording_list)
             fp3_free_recording_list(dst);
             return (NULL);
         }
-        
+
 //        recording->index = recording_list->recordings[i]->index;
 //        recording->position_medium = recording_list->recordings[i]->position_medium;
 //        recording->position_track = recording_list->recordings[i]->position_track;
@@ -2308,7 +2302,7 @@ _recording_list_merge(struct fp3_recording_list *dst, const struct fp3_recording
 {
     struct fp3_recording *recording_dst, *recording_src;
     size_t i;
-    
+
     for (i = 0; i < src->nmemb; i++) {
         recording_src = src->recordings[i];
         recording_dst = fp3_recording_list_find_recording(
@@ -2395,7 +2389,7 @@ _stream_merge(struct fp3_stream *dst, const struct fp3_stream *src)
     }
 }
 
-    
+
 static struct fp3_fingerprint *
 _fingerprint_merge(
     struct fp3_fingerprint *dst, const struct fp3_fingerprint *src)
@@ -2414,14 +2408,13 @@ _fingerprint_merge(
                 return (NULL);
         }
     }
-    
+
 #if 0
     if (dst->index == src->index) {
         if (dst->score < src->score) {
             dst->score = src->score;
         } else {
         }
-        
     } else {
         ; // XXX
     }
@@ -2577,7 +2570,7 @@ fp3_result_merge(struct fp3_result *dst, const struct fp3_result *src)
                 }
             }
         }
-        
+
         if (merged == 0) {
             if (fp3_result_add_releasegroup(dst, src->releasegroups[i]) == NULL)
                 return (NULL);
@@ -2725,7 +2718,7 @@ _compar_release(const void *a, const void *b)
     const struct fp3_release *ra = *((struct fp3_release **)a);
     const struct fp3_release *rb = *((struct fp3_release **)b);
     float score_a, score_b;
-    
+
     if (ra->distance < rb->distance)
         return (-1);
     if (ra->distance > rb->distance)
@@ -2739,7 +2732,7 @@ _compar_release(const void *a, const void *b)
         return (+1);
 
     return (strcmp(ra->id, rb->id));
-}    
+}
 
 
 void
@@ -2760,7 +2753,7 @@ _compar_releasegroup(const void *a, const void *b)
 {
     const struct fp3_releasegroup *ra = *((struct fp3_releasegroup **)a);
     const struct fp3_releasegroup *rb = *((struct fp3_releasegroup **)b);
-    
+
     if (ra->distance < rb->distance)
         return (-1);
     if (ra->distance > rb->distance)
@@ -2783,7 +2776,7 @@ fp3_sort_result(struct fp3_result *result)
     for (i = 0; i < result->nmemb; i++) {
         releasegroup = result->releasegroups[i];
         fp3_sort_releasegroup(releasegroup);
-        
+
         if (releasegroup->nmemb > 0) {
             release = releasegroup->releases[0];
 

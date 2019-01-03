@@ -1,4 +1,8 @@
+    * Cleaned up pre-GitHub history since 2014.
+
+
 2018-12-18  sndchk v0.0.0  <johan@hattne.se>
 
-    * Initial version.  Runs on one particular MacBook Pro with ALAC
-      audio files and iTunes metadata but probably nothing else.
+    * Initial version.  Runs on one particular little-endian MacBook
+      Pro with ALAC audio files and iTunes metadata but probably nothing
+      else.

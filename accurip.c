@@ -33,8 +33,8 @@ struct chunk
     
     int confidence;
 };
-    
-    
+
+
 struct entry
 {
     struct chunk *chunks;
@@ -253,6 +253,8 @@ Track  8: rip accurate     (max confidence     21) [0906eb93], DB [0906eb93]
 #endif
 
 
+/* XXX Should operate like cksum(1)?
+ */
 int
 main(int argc, char *argv[])
 {
@@ -435,7 +437,7 @@ main(int argc, char *argv[])
 
     long int skip = strtol(argv[1], NULL, 10);
     printf("Read skip %ld\n", skip);
-    
+
     for (i = 2; i < argc; i++) {
         AVPacket packet;
         AVAudioResampleContext *rc;

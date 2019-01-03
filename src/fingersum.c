@@ -110,7 +110,7 @@ struct _fingersum_offset
      * even int32_t owing to the limitation of the offset?
      */
     int32_t offset;
-    
+
     /* See below: lead-in, bulk, lead-out.  For both v1 and v2:
      *
      * 0: checksum of first (5 * 588 - offset) samples, indexed from
@@ -229,7 +229,7 @@ struct fingersum_context
     uint32_t sum[2 * MAX_OFFSET_2 + 588 + 1];
 
     uLong crc32_off[2 * 5 * 588 + 1];
-    
+
 //    uint64_t prutt_1;
 //    uint64_t prutt_2;
 //    uint64_t prutt_3;
@@ -249,7 +249,7 @@ struct fingersum_context
      */
     uint32_t *samples;
     uint32_t *samples_end;
-    uint64_t max_offset;    
+    uint64_t max_offset;
 };
 
 
@@ -316,7 +316,7 @@ _seek(void *opaque, int64_t offset, int whence)
             return (-1);
         return (sb.st_size);
     }
-    
+
     if (fseek(stream, offset, whence) != 0)
         return (-1);
     return (ftello(stream));
@@ -473,7 +473,7 @@ fingersum_new(FILE *stream)
     if (pthread_mutex_unlock(&_mutex) != 0) {
         fingersum_free(ctx);
         return (NULL);
-    }    
+    }
 
 
     /* Allocate and initialise an audio converter, if data cannot be
@@ -568,7 +568,6 @@ fingersum_new(FILE *stream)
         for (i = 0; i < 2 * MAX_OFFSET_2 + 588 + 1; i++) {
             ctx->sof[i] = 0;
             ctx->sum[i] = 0;
-
         }
 
         for (i = 0; i < 2 * 5 * 588 + 1; i++)
@@ -586,7 +585,6 @@ fingersum_new(FILE *stream)
 //           sizeof(struct fingersum_checksum),
 //           sizeof(((struct fp3_ar *)NULL)->checksums[0]));
 
-    
     return (ctx);
 }
 
@@ -649,14 +647,14 @@ fingersum_add_offset(struct fingersum_context *ctx, int32_t offset)
 
 
 //    printf("pre-checking %zd offsets for %d...\n", ctx->nmemb, offset);
-    
+
     for (i = 0; i < ctx->nmemb; i++) {
         if (ctx->offsets[i].offset == offset)
             return (0);
     }
 
 //    printf("reallocating pointer %p\n", ctx->offsets);
-    
+
     p = realloc(
         ctx->offsets, (ctx->nmemb + 1) * sizeof(struct _fingersum_offset));
     if (p == NULL)
@@ -686,7 +684,7 @@ fingersum_add_offset(struct fingersum_context *ctx, int32_t offset)
 //    printf("post-add dump:\n");
 //    fingersum_dump(ctx);
 
-    
+
     /* XXX Check the documentation of this one!
      */
     if (av_seek_frame(ctx->ic, ctx->stream->index, 0, 0) < 0)
@@ -847,9 +845,9 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
      *
      * For Pettson, XLD says:
      *
-     *        #  | Absolute | Relative | Confidence 
+     *        #  | Absolute | Relative | Confidence
      *    ------------------------------------------
-     *        1  |     77   |     29   |      1     
+     *        1  |     77   |     29   |      1
      *
      *    CRC32 hash               : 4B772E2F
      *    CRC32 hash (skip zero)   : 12B9C54E
@@ -858,9 +856,9 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
      *
      * For Track 1 & 2, Boney M., XLD says:
      *
-     *        #  | Absolute | Relative | Confidence 
+     *        #  | Absolute | Relative | Confidence
      *    ------------------------------------------
-     *        1  |     -6   |    -12   |     16     
+     *        1  |     -6   |    -12   |     16
      *
      *    CRC32 hash               : E7CE235F
      *    CRC32 hash (skip zero)   : 843D6E8A
@@ -933,7 +931,7 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
                    ctx->offsets[m].checksum_v2[1],
                    ctx->offsets[m].checksum_v1[2],
                    ctx->offsets[m].checksum_v2[2]);
-*/            
+*/
 
 #ifdef USE_CRC32 // XXX WIP
                 /*
@@ -1011,7 +1009,6 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
                 ctx->offsets[m].checksum_v1[0] += p; // & 0xffffffff;
                 ctx->offsets[m].checksum_v2[0] += s;
 
-
             } else if (l + 5 * 588 > ctx->stream->duration) {
                 ctx->offsets[m].checksum_v1[2] += p; // & 0xffffffff;
                 ctx->offsets[m].checksum_v2[2] += s;
@@ -1028,7 +1025,9 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
             }
         }
 
+
         /* XXX PLAYGROUND START */
+
         /* The leader: do the cumulative thing here, so nothing needs
          * to be done to finalize, but subtraction needed in checksum
          * comparator/offset finder instead.
@@ -1072,7 +1071,7 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
             ctx->v2.offset_test_2 +=
                 ctx->v2.offset_array_4[(j - 1) % MAX_OFFSET];
 
-            
+
             /* The trailer, kept in circular array.  We may not want
              * to rely on duration being reported correctly (e.g. the
              * Slayradio stream).  But we probably have to, otherwise
@@ -1107,13 +1106,15 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
 //        ctx->prutt_3 += u;
 //        ctx->prutt_4 += (j * u + k * u) & 0xffffffff;
 
+
         /* Test Monday, OK for k == 0
          */
 //        ctx->prutt_1 += ((j + k) * u) >> 32;
 //        ctx->prutt_2 += ((j + k) * u);
 //        ctx->prutt_3 += u & 0xffffffff;
 //        ctx->prutt_4 += ((j + k) * u) & 0xffffffff;
-        
+
+
         /* Playground Tuesday -- OK
          *
          * Hit the snag when replacing (j + k) in prutt_3 with + k *
@@ -1133,7 +1134,7 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
             printf("  IN-FLIGHT 0x%016llx 0x%016llx\n",
                    ctx->prutt, ctx->v2.offset_test_2);
         }
-*/        
+*/
 #endif
 
 
@@ -1174,6 +1175,7 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
             goto skip_crc32;
         }
 
+
         /* XXX Arbitrary limit; would have expected (450 + 1 + 5) *
          * 588 to make more sense, but that does not work for the
          * pause track on Duke.
@@ -1187,7 +1189,6 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
 //        goto skip_crc32;
 
         for (int i = -5 * 588; i <= +5 * 588; i++) {
-
             /* Map the range we got onto the range needed for the
              * current index.
              */
@@ -1201,7 +1202,7 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
             int f_dat = (451 * 588 + i) - ctx->samples_tot / 2;
 
 //            printf("Got i=%d f=%d\n", i_dat, f_dat);
-            
+
             if (i_dat >= 0 && i_dat < len / 2) {
                 /* This is the first data block for the CRC; only the
                  * tail of the data block will be included in the CRC.
@@ -1275,7 +1276,7 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
             case 0xDB2008BE:
             case 0x2A0D927E: //  0   [count 15]
             case 0x0B6E43D4: // +338 [count 3]
-#endif                    
+#endif
                 printf("#1 Offset %d: 0x%08lx\n", i, ctx->crc32_off[i + 5 * 588]);
                 //exit(0);
                 break;
@@ -1290,7 +1291,7 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
     }
 
 #endif
-    
+
 //    if (done != 0)
 //        exit(0);
 
@@ -1616,10 +1617,10 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
         crc32:    46F711BA
         count:    4
 */
-#endif    
+#endif
 
 //    size_t m;
-    
+
 //    for (m = 0; m < ctx->nmemb; m++) {
 //        printf("leaving _feed_checksum 0x%08X 0x%08x\n",
 //               ctx->offsets[m].checksum_v1[1],
@@ -1817,7 +1818,7 @@ fingersum_diff(struct fingersum_context *ctx1, struct fingersum_context *ctx2)
            mono1 != 0 ? "mono" : "stereo",
            mono2 != 0 ? "mono" : "stereo");
 
-    
+
     /* Clean up and exit.
      */
     if (data1 != NULL && size1 > 0)
@@ -1879,7 +1880,7 @@ _process(struct fingersum_context *ctx, ChromaprintContext *cc, int64_t len)
             if (pthread_mutex_unlock(&_mutex) != 0)
                 return (-1);
         }
-        
+
         cc = ctx->cc;
     }
 
@@ -2020,9 +2021,8 @@ _process(struct fingersum_context *ctx, ChromaprintContext *cc, int64_t len)
 
 //            for (i = 0; i < 2 * 5 * 588 + 1; i++)
 //                printf("  SET DATA %zd: 0x%08x\n", i, ctx->samples_end[i]);
-            
         }
-        
+
         ctx->samples_tot += n;
     } while (n > 0 && (len < 0 || (len -= n) > 0));
 
@@ -2103,7 +2103,7 @@ _foo1(struct _fingersum_checksum_v1 *leader,
 
 
 //    return (NULL);
-    
+
 //    printf("Looking for 0x%08X... %p %p %p\n",
 //           checksum, leader, center, trailer);
 
@@ -2138,7 +2138,7 @@ _foo1(struct _fingersum_checksum_v1 *leader,
 //        checksum == 0xec766907 || // Hedningarna, track  9
 //        checksum == 0x73db7ecd || // Hedningarna, track 10
         checksum == 0x47a4e7ab) { // Hedningarna, track 11
-*/        
+*/
 
     result = NULL;
     for (k = -5 * 588 + 2; k <= MAX_OFFSET - 5 * 588; k++) {
@@ -2222,7 +2222,7 @@ _foo1(struct _fingersum_checksum_v1 *leader,
                  * next track.  Add all of the current trailer
                  */
                 l = (center->nmemb - 1) % MAX_OFFSET;
-                    
+
                 v = center->offset_array_4[l] -
                     k *
                     center->offset_array_3[l];
@@ -2275,7 +2275,7 @@ _foo2(struct _fingersum_checksum_v1 *leader1,
 
 
 //    return (NULL);
-    
+
 //    printf("Looking for 0x%08X... %p %p %p\n",
 //           checksum, leader, center, trailer);
 
@@ -2310,7 +2310,7 @@ _foo2(struct _fingersum_checksum_v1 *leader1,
 //        checksum == 0xec766907 || // Hedningarna, track  9
 //        checksum == 0x73db7ecd || // Hedningarna, track 10
         checksum == 0x47a4e7ab) { // Hedningarna, track 11
-*/        
+*/
 
     result = NULL;
     for (k = -5 * 588 + 2; k <= MAX_OFFSET - 5 * 588; k++) {
@@ -2390,7 +2390,7 @@ _foo2(struct _fingersum_checksum_v1 *leader1,
                         (leader2->offset_array_3[m] -
                          leader2->offset_array_3[l]);
                 }
-            } 
+            }
         }
 
         if (trailer1 == NULL) {
@@ -2423,7 +2423,7 @@ _foo2(struct _fingersum_checksum_v1 *leader1,
                  * from the next track.
                  */
                 l = (center1->nmemb - 1) % MAX_OFFSET;
-                    
+
                 v = center1->offset_array_4[l] -
                     k * center1->offset_array_3[l];
 
@@ -2460,7 +2460,7 @@ _foo2(struct _fingersum_checksum_v1 *leader1,
 
 //        t &= 0xffffffff; // ADDITION
         t = (t + t2) & 0xffffffff; // ADDITION
-        
+
         if (t == checksum) {
             if (result == NULL) {
                 result = _fingersum_result_new();
@@ -2520,7 +2520,6 @@ fingersum_check_checksum2(struct fingersum_context *leader,
 
 //    uint64_t t = (center->prutt_2 + k * center->prutt_4);
 //    t = (t >> 32) + t;
-    
 
 //    printf("Prutt-check 0x%016llX 0x%016llX%s\n",
 //           center->prutt_1,
@@ -2602,7 +2601,6 @@ fingersum_find_offset(const struct fingersum_context *ctx, uint32_t crc) //, ssi
                 fp3_free_offset_list(offset_list);
                 return (NULL);
             }
-            
 
 //            *offset = k - MAX_OFFSET_2;
 //            return (0);
@@ -2701,7 +2699,7 @@ fingersum_get_checksum(struct fingersum_context *ctx,
         ctx->v1.nmemb = ctx->samples_tot / 2;
         ctx->v2.nmemb = ctx->samples_tot / 2;
     }
-    
+
 
     /* Optionally, copy over the three checksums: for the first
      * checksum (corresponding to the first track) omit the first five
@@ -2724,7 +2722,7 @@ fingersum_get_checksum(struct fingersum_context *ctx,
     /* XXX PLAYGROUND */
     size_t i;
     struct _fingersum_offset *off = ctx->offsets + 0;
-    
+
     printf("[fingersum_get_checksum() %08X %08X %08X: ",
            off->checksum_v1[1] + off->checksum_v1[2],
            off->checksum_v1[1] + off->checksum_v1[2] + off->checksum_v1[0],
@@ -2738,8 +2736,7 @@ fingersum_get_checksum(struct fingersum_context *ctx,
     }
 
     printf("]");
-    
-    
+
     return (0);
 }
 #endif
@@ -2757,7 +2754,7 @@ fingersum_get_checksum2(struct fingersum_context *ctx,
         if (_process(ctx, cc, -1) != 0)
             return (-1);
     }
-    
+
     if (checksum != NULL) {
         checksum[0] = ctx->checksum_v2[1] + ctx->checksum_v2[2];
         checksum[1] = checksum[0] + ctx->checksum_v2[0];
@@ -2874,7 +2871,7 @@ fingersum_get_result_3(struct fingersum_context *leader,
     size_t i, j;
 
 //    printf("fingersum_get_result_3() #0\n");
-    
+
     // Ensure all data has been processed for all streams.  XXX Are we
     // sure the streams each have a Chromaprint context?
     if (leader != NULL && leader->samples_tot < 2 * leader->stream->duration) {
@@ -2914,10 +2911,10 @@ fingersum_get_result_3(struct fingersum_context *leader,
         printf("DROPPING OUT\n");
         return (result);
     }
-    
+
     for (i = 0; i < center->nmemb; i++) {
         offset_center = center->offsets + i;
-        
+
         /* Find the corresponding offset in the leader and the
          * trailer.
          */
@@ -3024,7 +3021,7 @@ fingersum_get_result_3(struct fingersum_context *leader,
                 result->checksums[result->nmemb].crc32_eac = crc32(
                     crc32(0, Z_NULL, 0), buf, len);
             }
-            
+
             result->checksums[result->nmemb].checksum_v1 +=
                 offset_center->checksum_v1[1];
             result->checksums[result->nmemb].checksum_v2 +=
@@ -3100,7 +3097,6 @@ fingersum_get_result_3(struct fingersum_context *leader,
                 result->checksums[result->nmemb].checksum_v2 = _ar2_cksum(
                     0, 1, buf, len);
 
-
                 buf = (void *)(center->samples + offset_center->offset);
                 len = ((2 * 5 * 588 + 1) - offset_center->offset) * 2 * sizeof(int16_t);
 
@@ -3148,7 +3144,7 @@ fingersum_get_result_3(struct fingersum_context *leader,
 
                 buf = (void *)(trailer->samples);
                 len = offset_center->offset;
-                
+
                 result->checksums[result->nmemb].checksum_v1 = _ar1_cksum(
                     result->checksums[result->nmemb].checksum_v1,
                     center->samples_tot / 2 + 1 - offset_center->offset,
@@ -3182,6 +3178,9 @@ fingersum_get_result_3(struct fingersum_context *leader,
              * checksums in the leader and the trailer.  Offsets are
              * common, and we could just do it on demand... at least
              * for CRC32?
+             *
+             * XXX Problems remain with first and last tracks: check
+             * Coldplay's B-sides and rarities for an example.
              */
             result->checksums[result->nmemb].checksum_v1 =
                 offset_center->checksum_v1[1];
@@ -3284,7 +3283,7 @@ fingersum_get_duration(const struct fingersum_context *ctx)
  *
 
 Dictionary has 17 entries
-major_brand=M4A 
+major_brand=M4A
 minor_version=0
 compatible_brands=M4A mp42isom
 creation_time=2014-01-30 20:42:57
@@ -3364,7 +3363,7 @@ fingersum_get_metadata(const struct fingersum_context *ctx)
         exit(-1);
     }
 #endif
-    
+
     metadata = metadata_new();
     if (metadata == NULL)
         return NULL;
