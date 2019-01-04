@@ -13,33 +13,14 @@
 #include <err.h>
 #include <libgen.h>
 #include <limits.h>
+#include <locale.h>
 #include <math.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <signal.h>
 #include <string.h>
 #include <unistd.h> // XXX for sleep
-
-#include <iomanip>
-#include <iostream>
-#include <list>
-#include <set>
-
-#include "mp4v2/mp4v2.h"
-#include <taglib/tag_c.h>
-#include <taglib/fileref.h>
-#include <taglib/tag.h>
-#include <taglib/tpropertymap.h>
-
-#include <musicbrainz5/Disc.h>
-#include <musicbrainz5/HTTPFetch.h>
-#include <musicbrainz5/Medium.h>
-#include <musicbrainz5/Query.h>
-#include <musicbrainz5/Recording.h>
-#include <musicbrainz5/Release.h>
-#include <musicbrainz5/ReleaseGroup.h>
-#include <musicbrainz5/Track.h>
-#include <musicbrainz5/TrackList.h>
+#include <wchar.h>
 
 #include <musicbrainz5/mb5_c.h>
 
@@ -50,14 +31,14 @@
 #include <neon/ne_uri.h>
 #include <neon/ne_xml.h>
 
-#include "src/accuraterip.h"
-#include "src/acoustid.h"
-#include "src/fingersum.h"
-#include "src/metadata.h"
-#include "src/musicbrainz.h"
-#include "src/pool.h"
-#include "src/ratelimit.h"
-#include "src/structures.h"
+#include "accuraterip.h"
+#include "acoustid.h"
+#include "fingersum.h"
+#include "metadata.h"
+#include "musicbrainz.h"
+#include "pool.h"
+#include "ratelimit.h"
+#include "structures.h"
 
 //#define DEBUG 1
 //#define MB_RETRIES 5
@@ -97,7 +78,7 @@ find_in_mediumlist(Mb5MediumList ml, const char *id)
                         free(rid);
                     return (NULL);
                 }
-                rid = static_cast<char *>(p);
+                rid = p;
                 len = k;
             }
 
@@ -146,7 +127,7 @@ length_in_mediumlist(Mb5MediumList ml, const char *id)
                         free(rid);
                     return (-1);
                 }
-                rid = static_cast<char *>(p);
+                rid = p;
                 len = k;
             }
 
@@ -178,7 +159,7 @@ find_release(struct fp3_releasegroup *releasegroup, Mb5Release release)
     if (j <= 0)
         return (NULL);
 
-    id = static_cast<char *>(calloc(j + 1, sizeof(char)));
+    id = calloc(j + 1, sizeof(char));
     if (id == NULL)
         return (NULL);
 
@@ -356,7 +337,7 @@ toc_match(struct fingersum_context **ctxs,
                     p = realloc(not_found, (nfs + 1) * sizeof(char *));
                     if (p == NULL)
                         ; // XXX
-                    not_found = static_cast<char **>(p);
+                    not_found = p;
                     not_found[nfs++] = strdup(id);
 */
 
@@ -438,7 +419,7 @@ toc_match(struct fingersum_context **ctxs,
                 p = realloc(not_found, (nfs + 1) * sizeof(char *));
                 if (p == NULL)
                     ; // XXX
-                not_found = static_cast<char **>(p);
+                not_found = p;
                 not_found[nfs++] = strdup(id);
 */
                 struct fp3_recording *recording;
@@ -702,7 +683,7 @@ length_in_mediumlist2(Mb5MediumList ml, const char *id, int *di_current)
                         free(rid);
                     return (-1);
                 }
-                rid = static_cast<char *>(p);
+                rid = p;
                 len = k;
             }
 
@@ -1297,7 +1278,7 @@ _filter_incomplete(struct fp3_result *response)
                                             free(indices);
                                         return (-1);
                                     }
-                                    indices = static_cast<size_t *>(p);
+                                    indices = p;
                                     indices[nmemb++] = fingerprint->index;
                                 }
                             }
@@ -1329,7 +1310,7 @@ _filter_incomplete(struct fp3_result *response)
                                         free(indices);
                                     return (-1);
                                 }
-                                indices = static_cast<size_t *>(p);
+                                indices = p;
                                 indices[nmemb++] = stream->index;
                             }
                         }
@@ -1397,7 +1378,7 @@ _filter_incomplete(struct fp3_result *response)
                     free(indices_unmatched);
                 return (-1);
             }
-            indices_unmatched = static_cast<size_t *>(p);
+            indices_unmatched = p;
             indices_unmatched[nmemb_unmatched++] = i;
         }
     }
@@ -4972,7 +4953,7 @@ main(int argc, char *argv[])
      * Track numbers are one-based.  Also acoustid indexes from 1 (see
      * message on message board).  None of that actually matters here.
      */
-    for (i = 0; i < static_cast<size_t>(argc - 1); i++) {
+    for (i = 0; i < argc - 1; i++) {
         streams[i] = fopen(argv[i + 1], "r");
         if (streams[i] == NULL) {
             pool_free_pc(pc);
@@ -5022,7 +5003,7 @@ main(int argc, char *argv[])
 
 //    size_t *permutation;
 //    permutation = (size_t *)calloc(
-//        static_cast<size_t>(argc - 1), sizeof(size_t));
+//        argc - 1, sizeof(size_t));
 //    if (permutation == NULL) {
 //        pool_free_pc(pc);
 //        free(ctxs);
@@ -5046,7 +5027,7 @@ main(int argc, char *argv[])
         return (-1);
     }
 
-    for (i = 0; i < static_cast<size_t>(argc - 1); i++) {
+    for (i = 0; i < argc - 1; i++) {
         printf("Fingerprinting... ");
         fflush(stdout);
         if (get_result(pc, &ctx, (void **)(&arg), &status) != 0 ||
@@ -5107,7 +5088,7 @@ main(int argc, char *argv[])
 /*
     fp3_sort_result(result3);
     if (fp3_permute_result(
-            result3, permutation, static_cast<size_t>(argc - 1)) != 0) {
+            result3, permutation, argc - 1) != 0) {
         pool_free_pc(pc2);
         free(permutation);
         free(ctxs);
@@ -5143,8 +5124,8 @@ main(int argc, char *argv[])
     /* OLD COMMENT: Think about this output a bit; could be quite
      * useful.  For instance, how many "configurations" do we have?
      */
-    fp3_release *release3;
-    fp3_releasegroup *releasegroup3;
+    struct fp3_release *release3;
+    struct fp3_releasegroup *releasegroup3;
     size_t num_releases;
     size_t j; // k, l, m, n;
     int verbose = 3; //3;
@@ -5169,7 +5150,7 @@ main(int argc, char *argv[])
                "%zd streams missing fingerprints\n",
                num_releases,
                result3->nmemb,
-               static_cast<size_t>(argc - 1) - num_matched);
+               argc - 1 - num_matched);
         break;
 
     case 2:
@@ -5300,7 +5281,7 @@ main(int argc, char *argv[])
                 continue;
 
             if (_complete_release(
-                    release3, Release, static_cast<size_t>(argc - 1)) != 0) {
+                    release3, Release, argc - 1) != 0) {
                 printf("XXX _complete_release() failed!\n");
             }
 
@@ -5310,7 +5291,7 @@ main(int argc, char *argv[])
 
             if (_release_add_discs(
                     release3, ctxs,
-                    static_cast<size_t>(argc - 1), ar_ctx, Release) != 0) {
+                    argc - 1, ar_ctx, Release) != 0) {
                 printf("XXX _release_add_discs() failed!\n");
             }
 
@@ -5449,7 +5430,7 @@ main(int argc, char *argv[])
 //    if (_add_streams_offset(ctxs, result3) != 0)
 //        exit (-1); // XXX
 
-    for (i = 0; i < static_cast<size_t>(argc - 1); i++) {
+    for (i = 0; i < argc - 1; i++) {
         printf("ADDING request %zd %p\n", i, ctxs[i]);
 
         if (add_request(pc2, ctxs[i], (void *)i, POOL_ACTION_ACCURATERIP) != 0) {
@@ -5477,7 +5458,7 @@ main(int argc, char *argv[])
      * A minor": is multiprocessing working right, or is it just that
      * we are recalculating the AcoustID fingerprints?
      */
-    for (i = 0; i < static_cast<size_t>(argc - 1); i++) {
+    for (i = 0; i < argc - 1; i++) {
         struct fingersum_context *ctx;
         void *arg;
         int status;
@@ -6174,7 +6155,7 @@ artist-rels"
 
                 /* Third check: Check accuraterip
                  */
-                ret = accuraterip_url(ctxs, static_cast<size_t>(argc - 1), ml);
+                ret = accuraterip_url(ctxs, argc - 1, ml);
                 printf("accuraterip_url() said %d\n", ret);
                 if (ret < 0)
                     ; // XXX
@@ -6271,7 +6252,7 @@ artist-rels"
 //    acoustid_free(ac);
     ne_sock_exit();
 
-    for (i = 0; i < static_cast<size_t>(argc - 1); i++) {
+    for (i = 0; i < argc - 1; i++) {
         fingersum_free(ctxs[i]);
         fclose(streams[i]);
     }

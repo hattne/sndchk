@@ -21,11 +21,11 @@ CXXFLAGS = -Wall
 
 # XXX had -lstdc++ between -lm and -lneon.  Looks like -lneon must be
 # before -lm
-tagger: src/accuraterip.o src/acoustid.o src/configuration.o src/fingersum.o src/gzip.o src/metadata.o src/musicbrainz.o src/pool.o src/ratelimit.o src/structures.o tagger.o
+sndchk: src/accuraterip.o src/acoustid.o src/configuration.o src/fingersum.o src/gzip.o src/metadata.o src/musicbrainz.o src/pool.o src/ratelimit.o src/structures.o src/sndchk.o
 	#$(CC) $(LDFLAGS) -o $(@) $(^) -lmp4v2 -lavformat
 	$(CXX) $(LDFLAGS) -o $(@) $(^) -lneon -lmp4v2 -lavcodec -lavdevice -lavformat -lavresample -lavutil -lchromaprint -lmusicbrainz5 -lm -lz -liconv
 
-	install_name_tool -change @rpath/libchromaprint.1.dylib $(HOME)/Gentoo/usr/lib/libchromaprint.1.dylib tagger
+	install_name_tool -change @rpath/libchromaprint.1.dylib $(HOME)/Gentoo/usr/lib/libchromaprint.1.dylib sndchk
 
 accurip: accurip.o
 	$(CXX) $(LDFLAGS) -o $(@) $(^) -lneon -lmp4v2 -lavcodec -lavdevice -lavformat -lavresample -lavutil -lm  -lz
@@ -61,7 +61,7 @@ mb: mb.o
 
 # -lavformat -lavcodec -lavutil -lavfilter
 
-all: tagger accurip fingersum fingerquery ratelimit diff tags rmtags mb
+all: sndchk accurip fingersum fingerquery ratelimit diff tags rmtags mb
 
 clean:
 	rm -f *.o src/*.o test/*.o

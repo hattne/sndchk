@@ -1,3 +1,6 @@
+    * Renamed main program from tagger to sndchk and converted it to
+      C.
+
     * Cleaned up pre-GitHub history since 2014.
 
 
