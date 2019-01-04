@@ -7,16 +7,10 @@ LDFLAGS += -L$(HOME)/projects/libav/image/lib -L$(HOME)/projects/libmusicbrainz/
 #LDFLAGS += -L$(HOME)/projects/libmusicbrainz/install/lib -L$(HOME)/Gentoo/usr/lib
 
 #CC =$(HOME)/Gentoo/usr/bin/gcc
-#CXX =$(HOME)/Gentoo/usr/bin/g++
-
 #CC =$(HOME)/Gentoo/usr/bin/clang
-#CXX =$(HOME)/Gentoo/usr/bin/clang++
 
 CC=$(HOME)/Gentoo/usr/lib/llvm/7/bin/clang
-CXX=$(HOME)/Gentoo/usr/lib/llvm/7/bin/clang++
-
 CFLAGS = -Wall
-CXXFLAGS = -Wall
 
 
 # XXX had -lstdc++ between -lm and -lneon.  Looks like -lneon must be
@@ -48,10 +42,7 @@ diff: src/fingersum.o src/metadata.o src/structures.o test/diff.o
 tags: test/tags.o
 	$(CC) $(LDFLAGS) -o $(@) $(^) -lavformat -lavutil
 
-mb: mb.o
-	$(CXX) $(LDFLAGS) -o $(@) $(^) -lmusicbrainz5
-
-all: sndchk accurip fingersum fingerquery ratelimit diff tags mb
+all: sndchk accurip fingersum fingerquery ratelimit diff tags
 
 clean:
 	rm -f *.o src/*.o test/*.o
