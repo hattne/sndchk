@@ -48,13 +48,10 @@ diff: src/fingersum.o src/metadata.o src/structures.o test/diff.o
 tags: test/tags.o
 	$(CC) $(LDFLAGS) -o $(@) $(^) -lavformat -lavutil
 
-rmtags: rmtags.o
-	$(CXX) $(LDFLAGS) -o $(@) $(^) -ltag -lstdc++
-
 mb: mb.o
 	$(CXX) $(LDFLAGS) -o $(@) $(^) -lmusicbrainz5
 
-all: sndchk accurip fingersum fingerquery ratelimit diff tags rmtags mb
+all: sndchk accurip fingersum fingerquery ratelimit diff tags mb
 
 clean:
 	rm -f *.o src/*.o test/*.o
