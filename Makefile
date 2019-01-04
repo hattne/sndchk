@@ -22,34 +22,31 @@ CXXFLAGS = -Wall
 # XXX had -lstdc++ between -lm and -lneon.  Looks like -lneon must be
 # before -lm
 sndchk: src/accuraterip.o src/acoustid.o src/configuration.o src/fingersum.o src/gzip.o src/metadata.o src/musicbrainz.o src/pool.o src/ratelimit.o src/structures.o src/sndchk.o
-	#$(CC) $(LDFLAGS) -o $(@) $(^) -lmp4v2 -lavformat
-	$(CXX) $(LDFLAGS) -o $(@) $(^) -lneon -lmp4v2 -lavcodec -lavdevice -lavformat -lavresample -lavutil -lchromaprint -lmusicbrainz5 -lm -lz -liconv
+	$(CC) $(LDFLAGS) -o $(@) $(^) -lneon -lmp4v2 -lavcodec -lavdevice -lavformat -lavresample -lavutil -lchromaprint -lmusicbrainz5 -lm -lz -liconv
 
 	install_name_tool -change @rpath/libchromaprint.1.dylib $(HOME)/Gentoo/usr/lib/libchromaprint.1.dylib sndchk
 
 accurip: accurip.o
-	$(CXX) $(LDFLAGS) -o $(@) $(^) -lneon -lmp4v2 -lavcodec -lavdevice -lavformat -lavresample -lavutil -lm  -lz
+	$(CC) $(LDFLAGS) -o $(@) $(^) -lneon -lmp4v2 -lavcodec -lavdevice -lavformat -lavresample -lavutil -lm  -lz
 
 fingersum: src/fingersum.o src/metadata.o src/pool.o src/structures.o test/fingersum.o
-	$(CXX) $(LDFLAGS) -o $(@) $(^) -lmp4v2 -lavcodec -lavdevice -lavformat -lavresample -lavutil -lchromaprint -lm  -lz
+	$(CC) $(LDFLAGS) -o $(@) $(^) -lmp4v2 -lavcodec -lavdevice -lavformat -lavresample -lavutil -lchromaprint -lm  -lz
 
 fingerquery: src/acoustid.o src/fingersum.o src/gzip.o src/metadata.o src/pool.o src/ratelimit.o src/structures.o test/fingerquery.o
-	$(CXX) $(LDFLAGS) -o $(@) $(^) -lneon -lmp4v2 -lavcodec -lavdevice -lavformat -lavresample -lavutil -lchromaprint -lm -lz
+	$(CC) $(LDFLAGS) -o $(@) $(^) -lneon -lmp4v2 -lavcodec -lavdevice -lavformat -lavresample -lavutil -lchromaprint -lm -lz
 
 	install_name_tool -change @rpath/libchromaprint.1.dylib $(HOME)/Gentoo/usr/lib/libchromaprint.1.dylib fingerquery
 
 ratelimit: src/ratelimit.o test/ratelimit.o
-	$(CXX) $(LDFLAGS) -o $(@) $(^)
+	$(CC) $(LDFLAGS) -o $(@) $(^)
 
 diff: src/fingersum.o src/metadata.o src/structures.o test/diff.o
 	$(CC) $(LDFLAGS) -o $(@) $(^) -lneon -lmp4v2 -lavcodec -lavdevice -lavformat -lavresample -lavutil -lchromaprint -lm -lz
 
 	install_name_tool -change @rpath/libchromaprint.1.dylib $(HOME)/Gentoo/usr/lib/libchromaprint.1.dylib diff
 
-tags: tags.o
-	#$(CXX) $(LDFLAGS) -o $(@) $(^) -ltag -lstdc++
-	$(CXX) $(LDFLAGS) -o $(@) $(^) -ltag -lavformat -lavutil
-	#$(CXX) $(LDFLAGS) -o $(@) $(^) -ltag -lavcodec -lavformat -lavutil -lz -lbz2
+tags: test/tags.o
+	$(CC) $(LDFLAGS) -o $(@) $(^) -lavformat -lavutil
 
 rmtags: rmtags.o
 	$(CXX) $(LDFLAGS) -o $(@) $(^) -ltag -lstdc++

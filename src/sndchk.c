@@ -4854,60 +4854,6 @@ main(int argc, char *argv[])
     return (0);
 #endif
 
-#if 0
-  for(int i = 1; i < argc; i++) {
-
-      std::cout << "******************** \"" << argv[i] << "\" ********************" << std::endl;
-
-    TagLib::FileRef f(argv[i]);
-
-    if(!f.isNull() && f.tag()) {
-
-      TagLib::Tag *tag = f.tag();
-
-      std::cout << "-- TAG (basic) --" << std::endl;
-      std::cout << "title   - \"" << tag->title()   << "\"" << std::endl;
-      std::cout << "artist  - \"" << tag->artist()  << "\"" << std::endl;
-      std::cout << "album   - \"" << tag->album()   << "\"" << std::endl;
-      std::cout << "year    - \"" << tag->year()    << "\"" << std::endl;
-      std::cout << "comment - \"" << tag->comment() << "\"" << std::endl;
-      std::cout << "track   - \"" << tag->track()   << "\"" << std::endl;
-      std::cout << "genre   - \"" << tag->genre()   << "\"" << std::endl;
-
-      TagLib::PropertyMap tags = f.file()->properties();
-
-      unsigned int longest = 0;
-      for(TagLib::PropertyMap::ConstIterator i = tags.begin(); i != tags.end(); ++i) {
-          if (i->first.size() > longest) {
-              longest = i->first.size();
-          }
-      }
-
-      std::cout << "-- TAG (properties) --" << std::endl;
-      for(TagLib::PropertyMap::ConstIterator i = tags.begin(); i != tags.end(); ++i) {
-          for(TagLib::StringList::ConstIterator j = i->second.begin(); j != i->second.end(); ++j) {
-              std::cout << std::left << std::setfill(' ') << std::setw(longest) << i->first << " - " << '"' << *j << '"' << std::endl;
-          }
-      }
-    }
-
-    if(!f.isNull() && f.audioProperties()) {
-
-      TagLib::AudioProperties *properties = f.audioProperties();
-
-      int seconds = properties->length() % 60;
-      int minutes = (properties->length() - seconds) / 60;
-
-      std::cout << "-- AUDIO --" << std::endl;
-      std::cout << "bitrate     - " << properties->bitrate() << std::endl;
-      std::cout << "sample rate - " << properties->sampleRate() << std::endl;
-      std::cout << "channels    - " << properties->channels() << std::endl;
-      std::cout << "length      - " << minutes << ":" << std::setfill('0') << std::setw(2) << seconds << std::endl;
-    }
-  }
-  return 0;
-#endif
-
 
   /* It appears we need to set the locale (see setlocale(3)) to ensure
    * it's UTF-8 for string conversion stuff mbstowc(3).
