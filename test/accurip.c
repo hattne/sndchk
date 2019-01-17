@@ -500,7 +500,11 @@ main(int argc, char *argv[])
 
         /* avcodec_open2() is not thread-safe!
          */
-        cc = stream->codec;
+        cc = avcodec_alloc_context3(decoder);
+        if (cc == NULL)
+            return (-1);
+        if (avcodec_parameters_to_context(cc, stream->codecpar) != 0)
+            return (-1);
         cc->request_sample_fmt = AV_SAMPLE_FMT_S16;
         ret = avcodec_open2(cc, decoder, NULL);
         if (ret < 0) {

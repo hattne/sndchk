@@ -159,6 +159,12 @@ struct fingersum_context
      */
     AVAudioResampleContext *rc;
 
+    /* Decoder
+     *
+     * XXX Is this really freed?  What about avcodec_free_context()?
+     */
+    AVCodecContext *avcc;
+
     /* Libav input context
      *
      * The input context must be released in fingersum_free().  XXX
@@ -325,7 +331,6 @@ struct fingersum_context *
 fingersum_new(FILE *stream)
 {
     AVCodec *decoder;
-    AVCodecContext *cc;
     AVDictionary *options;
     AVDictionaryEntry *option;
     struct fingersum_context *ctx;
@@ -346,6 +351,7 @@ fingersum_new(FILE *stream)
         return (NULL);
 
     ctx->rc = NULL;
+    ctx->avcc = NULL;
     ctx->ic = NULL;
     ctx->cc = NULL;
     ctx->frame = NULL;
@@ -428,9 +434,14 @@ fingersum_new(FILE *stream)
 
     stream_index = av_find_best_stream(
         ctx->ic, AVMEDIA_TYPE_AUDIO, -1, -1, &decoder, 0);
-    if (stream_index < 0 || decoder == NULL) {
+    if (stream_index < 0) {
         fingersum_free(ctx);
         errno = ENOMSG;
+        return (NULL);
+    }
+    if (decoder == NULL) {
+        fingersum_free(ctx);
+        errno = ENOTSUP;
         return (NULL);
     }
     ctx->stream = ctx->ic->streams[stream_index];
@@ -444,25 +455,26 @@ fingersum_new(FILE *stream)
         return (NULL);
     }
 
-    cc = ctx->stream->codec;
-    printf("Have %d channels at %d\n", cc->channels, cc->sample_rate);
-    if (cc->channels < 1 || cc->channels > 2 || cc->sample_rate <= 0) {
-        fingersum_free(ctx);
-        errno = EPROTO;
-        return (NULL);
-    }
-
 
     /* Open the decoder and request interleaved, signed 16-bit
      * samples.  Return with EPROTO in case of failure.  Note that
      * avcodec_open2() is not thread-safe.
      */
-    cc->request_sample_fmt = AV_SAMPLE_FMT_S16;
+    ctx->avcc = avcodec_alloc_context3(decoder);
+    if (ctx->avcc == NULL) {
+        errno = ENOMEM;
+        return (NULL);
+    }
+    if (avcodec_parameters_to_context(ctx->avcc, ctx->stream->codecpar) != 0) {
+        errno = EPROTO;
+        return (NULL);
+    }
+    ctx->avcc->request_sample_fmt = AV_SAMPLE_FMT_S16;
     if (pthread_mutex_lock(&_mutex) != 0) {
         fingersum_free(ctx);
         return (NULL);
     }
-    if (avcodec_open2(cc, decoder, NULL) < 0) {
+    if (avcodec_open2(ctx->avcc, decoder, NULL) < 0) {
         fingersum_free(ctx);
         pthread_mutex_unlock(&_mutex);
         errno = EPROTO;
@@ -473,16 +485,26 @@ fingersum_new(FILE *stream)
         return (NULL);
     }
 
+    printf("Have %d channels at %d\n",
+           ctx->avcc->channels, ctx->avcc->sample_rate);
+    if (ctx->avcc->channels < 1 ||
+        ctx->avcc->channels > 2 ||
+        ctx->avcc->sample_rate <= 0) {
+        fingersum_free(ctx);
+        errno = EPROTO;
+        return (NULL);
+    }
+
 
     /* Allocate and initialise an audio converter, if data cannot be
      * natively provided as interleaved, signed 16-bit samples.  This
      * will fail with EPROTONOSUPPORT if the converter could not be
      * initialised.
      */
-    if (cc->sample_fmt != AV_SAMPLE_FMT_S16) {
-        channel_layout = cc->channel_layout;
+    if (ctx->avcc->sample_fmt != AV_SAMPLE_FMT_S16) {
+        channel_layout = ctx->avcc->channel_layout;
         if (channel_layout == 0)
-            channel_layout = av_get_default_channel_layout(cc->channels);
+            channel_layout = av_get_default_channel_layout(ctx->avcc->channels);
 
         ctx->rc = avresample_alloc_context();
         if (ctx->rc == NULL) {
@@ -492,11 +514,11 @@ fingersum_new(FILE *stream)
         }
 
         av_opt_set_int(ctx->rc, "in_channel_layout", channel_layout, 0);
-        av_opt_set_int(ctx->rc, "in_sample_fmt", cc->sample_fmt, 0);
-        av_opt_set_int(ctx->rc, "in_sample_rate", cc->sample_rate, 0);
+        av_opt_set_int(ctx->rc, "in_sample_fmt", ctx->avcc->sample_fmt, 0);
+        av_opt_set_int(ctx->rc, "in_sample_rate", ctx->avcc->sample_rate, 0);
         av_opt_set_int(ctx->rc, "out_channel_layout", channel_layout, 0);
         av_opt_set_int(ctx->rc, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
-        av_opt_set_int(ctx->rc, "out_sample_rate", cc->sample_rate, 0);
+        av_opt_set_int(ctx->rc, "out_sample_rate", ctx->avcc->sample_rate, 0);
 
         if (avresample_open(ctx->rc) < 0) {
             fingersum_free(ctx);
@@ -524,7 +546,8 @@ fingersum_new(FILE *stream)
 //    ctx->checksum_v2[0] = 0;
 //    ctx->checksum_v2[1] = 0;
 //    ctx->checksum_v2[2] = 0;
-    ctx->remaining = CHROMAPRINT_LEN * cc->channels * cc->sample_rate;
+    ctx->remaining =
+        CHROMAPRINT_LEN * ctx->avcc->channels * ctx->avcc->sample_rate;
     ctx->samples_tot = 0;
 
 
@@ -723,18 +746,16 @@ static int
 _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
 {
     AVPacket packet;
-    AVCodecContext *cc;
     int linesize;
 
 
     /* Get the next packet from the appropriate stream and decode it.
      */
-    cc = ctx->stream->codec;
     for ( ; ; ) {
         if (av_read_frame(ctx->ic, &packet) < 0)
             return (0);
         if (packet.stream_index == ctx->stream->index) {
-            if (avcodec_send_packet(cc, &packet) != 0) {
+            if (avcodec_send_packet(ctx->avcc, &packet) != 0) {
                 av_packet_unref(&packet);
                 errno = EPROTO;
                 return (-1);
@@ -745,7 +766,7 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
         av_packet_unref(&packet);
     }
 
-    if (avcodec_receive_frame(cc, ctx->frame) != 0) {
+    if (avcodec_receive_frame(ctx->avcc, ctx->frame) != 0) {
         errno = EPROTO;
         return (-1);
     }
@@ -763,7 +784,7 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
             *size = 0;
         }
         *data = ctx->frame->data[0];
-        return (ctx->frame->nb_samples * cc->channels);
+        return (ctx->frame->nb_samples * ctx->avcc->channels);
     }
 
 
@@ -774,7 +795,7 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
         if (*data != NULL)
             av_freep(data);
         if (av_samples_alloc(
-                data, &linesize, cc->channels,
+                data, &linesize, ctx->avcc->channels,
                 ctx->frame->nb_samples, AV_SAMPLE_FMT_S16, 1) < 0) {
             *data = NULL;
             *size = 0;
@@ -790,7 +811,7 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
         return (-1);
     }
 
-    return (ctx->frame->nb_samples * cc->channels);
+    return (ctx->frame->nb_samples * ctx->avcc->channels);
 }
 
 
@@ -1715,9 +1736,9 @@ fingersum_diff(struct fingersum_context *ctx1, struct fingersum_context *ctx2)
      * in trying to diff if the number of bits per sample are not
      * identical, or not a multiple of eight.
      */
-    ops = ctx1->stream->codec->bits_per_raw_sample / 8;
-    if (ctx1->stream->codec->bits_per_raw_sample != ops * 8 ||
-        ctx2->stream->codec->bits_per_raw_sample != ops * 8) {
+    ops = ctx1->avcc->bits_per_raw_sample / 8;
+    if (ctx1->avcc->bits_per_raw_sample != ops * 8 ||
+        ctx2->avcc->bits_per_raw_sample != ops * 8) {
 //        errno = XXX;
         return (-1);
     }
@@ -1840,7 +1861,6 @@ fingersum_diff(struct fingersum_context *ctx1, struct fingersum_context *ctx2)
 static int
 _process(struct fingersum_context *ctx, ChromaprintContext *cc, int64_t len)
 {
-    AVCodecContext *avcc;
     uint8_t *data;
     int n, ret, size;
 
@@ -1881,8 +1901,8 @@ _process(struct fingersum_context *ctx, ChromaprintContext *cc, int64_t len)
      * for a new audio stream.
      */
     if (ctx->samples_tot == 0) {
-        avcc = ctx->stream->codec;
-        if (chromaprint_start(cc, avcc->sample_rate, avcc->channels) != 1) {
+        if (chromaprint_start(
+                cc, ctx->avcc->sample_rate, ctx->avcc->channels) != 1) {
             errno = EPROTO;
             return (-1);
         }
