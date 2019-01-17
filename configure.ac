@@ -18,12 +18,15 @@ AC_PROG_CC
 # FFmpeg [https://www.ffmpeg.org]: need a version that extracts
 # sort_composer.  The change from 2014-11-28 was merged into 2.6 on
 # 2014-12-08; the closest release is 2.6.9 from 2016-05-03.
+#
+# avcodec_send_packet() and avcodec_receive_frame() were introduced in
+# 57.37.100.
 PKG_CHECK_MODULES(LIBAVCODEC,
-                  libavcodec >= 56.26.100,
+                  libavcodec >= 57.37.100,
                   have_libavcodec=yes,
                   have_libavcodec=no)
 AS_IF([test "x${have_libavcodec}" = "xno"], [
-    AC_MSG_ERROR([need libavcodec 56.26.100 or later])
+    AC_MSG_ERROR([need libavcodec 57.37.100 or later])
 ])
 
 PKG_CHECK_MODULES(LIBAVFORMAT,

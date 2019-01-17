@@ -443,7 +443,7 @@ main(int argc, char *argv[])
         AVFrame *frame;
         uint8_t **data, *output[1];
         int64_t channel_layout;
-        int consumed, got_frame_ptr, duration, nb_samples,  linesize;
+        int consumed, duration, nb_samples,  linesize;
 
         ic = NULL;
         rc = NULL;
@@ -573,11 +573,15 @@ main(int argc, char *argv[])
                 continue;
             }
 
-            av_frame_unref(frame); // avcodec_get_frame_defaults(frame);
-            consumed = avcodec_decode_audio4(
-                cc, frame, &got_frame_ptr, &packet);
+            if (avcodec_send_packet(cc, &packet) != 0) {
+                av_free_packet(&packet);
+                errno = EPROTO;
+                return (-1);
+            }
             av_free_packet(&packet);
-            if (consumed < 0 || got_frame_ptr == 0)
+
+            consumed = avcodec_receive_frame(cc, frame);
+            if (consumed < 0)
                 /* fprintf(
                  *     stderr, "WARNING: error decoding audio\n");
                  */

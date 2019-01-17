@@ -725,7 +725,7 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
 {
     AVPacket packet;
     AVCodecContext *cc;
-    int got_frame_ptr, linesize;
+    int linesize;
 
 
     /* Get the next packet from the appropriate stream and decode it.
@@ -734,30 +734,24 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
     for ( ; ; ) {
         if (av_read_frame(ctx->ic, &packet) < 0)
             return (0);
-        if (packet.stream_index == ctx->stream->index)
+        if (packet.stream_index == ctx->stream->index) {
+            if (avcodec_send_packet(cc, &packet) != 0) {
+                av_free_packet(&packet);
+                errno = EPROTO;
+                return (-1);
+            }
+            av_free_packet(&packet);
             break;
+        }
         av_free_packet(&packet);
     }
 
-    av_frame_unref(ctx->frame); // avcodec_get_frame_defaults(ctx->frame);
-    if (avcodec_decode_audio4(cc, ctx->frame, &got_frame_ptr, &packet) < 0) {
-        av_free_packet(&packet);
+    if (avcodec_receive_frame(cc, ctx->frame) != 0) {
         errno = EPROTO;
         return (-1);
     }
-    if (got_frame_ptr <= 0) {
-        /* XXX Could possibly check that got_frame_ptr is non-zero
-         * here instead.  Return 0 if it is, otherwise move one.  Does
-         * this mean we do not have to check stream_index above?
-         * Could probably check this with a movie.
-         */
-        av_free_packet(&packet);
-        errno = EPROTO;
-        return (-1);
-    }
-    av_free_packet(&packet);
 
-    
+
     /* If resampling is not required, release any externally allocated
      * buffer and return a pointer to the frame's data.
      */
