@@ -736,14 +736,14 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
             return (0);
         if (packet.stream_index == ctx->stream->index) {
             if (avcodec_send_packet(cc, &packet) != 0) {
-                av_free_packet(&packet);
+                av_packet_unref(&packet);
                 errno = EPROTO;
                 return (-1);
             }
-            av_free_packet(&packet);
+            av_packet_unref(&packet);
             break;
         }
-        av_free_packet(&packet);
+        av_packet_unref(&packet);
     }
 
     if (avcodec_receive_frame(cc, ctx->frame) != 0) {

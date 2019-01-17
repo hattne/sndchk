@@ -569,16 +569,16 @@ main(int argc, char *argv[])
             if (av_read_frame(ic, &packet) < 0)
                 break;
             if (packet.stream_index != stream->index) {
-                av_free_packet(&packet);
+                av_packet_unref(&packet);
                 continue;
             }
 
             if (avcodec_send_packet(cc, &packet) != 0) {
-                av_free_packet(&packet);
+                av_packet_unref(&packet);
                 errno = EPROTO;
                 return (-1);
             }
-            av_free_packet(&packet);
+            av_packet_unref(&packet);
 
             consumed = avcodec_receive_frame(cc, frame);
             if (consumed < 0)
