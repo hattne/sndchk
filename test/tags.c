@@ -26,8 +26,6 @@
 #include <stdio.h>
 
 #include <libavformat/avformat.h>
-#include <libavutil/dict.h>
-#include <libavutil/opt.h>
 
 
 /* See https://patches.libav.org/patch/56003/

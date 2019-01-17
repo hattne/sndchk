@@ -1,7 +1,7 @@
 /* -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 8 -*- */
 
 /*-
- * Copyright (c) 2014, Johan Hattne
+ * Copyright © 2018-2019, Johan Hattne
  *
  * Permission to use, copy, modify, and/or distribute this software
  * for any purpose with or without fee is hereby granted, provided
@@ -33,7 +33,6 @@
 
 #include <libavformat/avformat.h>
 #include <libavresample/avresample.h>
-#include <libavutil/opt.h>
 
 #include "fingersum.h"
 

@@ -1,5 +1,7 @@
+    * Build system now uses the Autotools.
+
     * Renamed main program from tagger to sndchk and converted it to
-      C.
+      C.  Renamed tags to sndtags.
 
     * Cleaned up pre-GitHub history since 2014.
 

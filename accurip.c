@@ -9,11 +9,8 @@
 
 #include <inttypes.h>
 
-#include <libavcodec/avcodec.h>
-#include <libavdevice/avdevice.h>
 #include <libavformat/avformat.h>
 #include <libavresample/avresample.h>
-#include <libavutil/opt.h>
 
 /* XXX Which ones are actually needed?
  */
