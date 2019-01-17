@@ -265,8 +265,8 @@ main(int argc, char *argv[])
     int ret, stream_index;
     AVCodec *decoder;
     AVCodecContext *cc;
-    
-    av_register_all();
+
+
     av_log_set_level(AV_LOG_ERROR);
 
 

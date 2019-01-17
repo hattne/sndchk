@@ -49,7 +49,6 @@ int main (int argc, char **argv)
     AVDictionaryEntry *e = NULL;
     av_dict_set(&options, "export_all", "1", 0);
 
-    av_register_all();
     if ((ret = avformat_open_input(&fmt_ctx, argv[1], NULL, &options)))
         return ret;
 

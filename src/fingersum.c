@@ -273,7 +273,6 @@ _init()
         return (-1);
 
     if (initialised == 0) {
-        av_register_all();
         av_log_set_level(AV_LOG_ERROR);
         initialised = 1;
     }
