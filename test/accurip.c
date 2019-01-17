@@ -11,6 +11,7 @@
 
 #include <libavformat/avformat.h>
 #include <libavresample/avresample.h>
+#include <libavutil/opt.h>
 
 /* XXX Which ones are actually needed?
  */

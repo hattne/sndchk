@@ -33,6 +33,7 @@
 
 #include <libavformat/avformat.h>
 #include <libavresample/avresample.h>
+#include <libavutil/opt.h>
 
 #include "fingersum.h"
 
