@@ -15,12 +15,6 @@ AM_INIT_AUTOMAKE([1.9 foreign subdir-objects])
 AC_PROG_CC
 
 
-# Needs m4/iconv.m4 and build-aux/config.rpath from gnulib; current
-# versions are taken from 2017.12.19.15.53.47.  XXX iconv may not
-# actually be used.
-AM_ICONV
-
-
 # FFmpeg [https://www.ffmpeg.org]: need a version that extracts
 # sort_composer.  The change from 2014-11-28 was merged into 2.6 on
 # 2014-12-08; the closest release is 2.6.9 from 2016-05-03.

@@ -115,7 +115,6 @@ sndchk_LDADD   = @NEON_LIBS@            \
                  @LIBCHROMAPRINT_LIBS@  \
                  @LIBMUSICBRAINZ5_LIBS@ \
                  @ZLIB_LIBS@            \
-                 @LIBICONV@             \
                  @M_LIBS@
 
 # This was renamed from "tags" to "sndtags" so as not to clash with
