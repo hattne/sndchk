@@ -8,8 +8,7 @@
 
 bin_PROGRAMS = accurip diff fingerquery fingersum ratelimit sndchk sndtags
 
-# XXX This should not be here--migrate to test?
-accurip_SOURCES = accurip.c
+accurip_SOURCES = test/accurip.c
 accurip_CFLAGS  = @NEON_CFLAGS@          \
                   @LIBAVCODEC_CFLAGS@    \
                   @LIBAVFORMAT_CFLAGS@   \
