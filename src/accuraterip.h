@@ -1,7 +1,7 @@
 /* -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 8 -*- */
 
 /*-
- * Copyright (c) 2014, Johan Hattne
+ * Copyright © 2018-2019, Johan Hattne
  *
  * Permission to use, copy, modify, and/or distribute this software
  * for any purpose with or without fee is hereby granted, provided
@@ -16,8 +16,6 @@
  * OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
- * $Id:$
  */
 
 #ifndef ACCURATERIP_H
@@ -37,9 +35,10 @@ ACCURATERIP_BEGIN_C_DECLS
  * @file accuraterip.h
  * @brief XXX
  *
- *
  * @note An Accuraterip context must be accessed only by one thread at
  *       the time.
+ *
+ * @note Several functions depend on the MusicBrainz Client Library
  *
  * References
  *
