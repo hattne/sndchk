@@ -1,7 +1,7 @@
 /* -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 8 -*- */
 
 /*-
- * Copyright (c) 2014, Johan Hattne
+ * Copyright © 2018-2019, Johan Hattne
  *
  * Permission to use, copy, modify, and/or distribute this software
  * for any purpose with or without fee is hereby granted, provided
@@ -19,6 +19,10 @@
  *
  * $Id:$
  */
+
+#ifdef HAVE_CONFIG_H
+#    include <config.h>
+#endif
 
 #include <stdarg.h>
 #include <stdio.h>
@@ -786,13 +790,12 @@ musicbrainz_new()
     if (ctx == NULL)
         return (NULL);
 
-    ctx->Query = mb5_query_new("cdlookupcexample-1.0", NULL, 0);
-//    ctx->Query = mb5_query_new("cdlookupcexample-1.0",
-//                               "gonenlab-ws3.janelia.priv",
-//                               5000);
-//    ctx->Query = mb5_query_new("cdlookupcexample-1.0",
-//                               "beta.musicbrainz.org",
-//                               0);
+
+    /* Note that the product string passed here does not conform to
+     * RFC2616's product token grammar.  XXX If the string is passed
+     * unchanged to neon's ne_session_create(), it probably should!
+     */
+    ctx->Query = mb5_query_new(PACKAGE_NAME "-" PACKAGE_VERSION, NULL, 0);
     if (ctx->Query == NULL) {
         musicbrainz_free(ctx);
         return (NULL);

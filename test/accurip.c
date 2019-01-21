@@ -5,6 +5,10 @@
  * $Id:$
  */
 
+#ifdef HAVE_CONFIG_H
+#    include <config.h>
+#endif
+
 #include <stdint.h>
 
 #include <inttypes.h>
@@ -284,7 +288,7 @@ main(int argc, char *argv[])
         ; // XXX
      
     sess = ne_session_create("http", "www.accuraterip.com", 80);
-    
+    ne_set_useragent(sess, PACKAGE_NAME "/" PACKAGE_VERSION);
     req = ne_request_create(
         sess, "GET",
         "/accuraterip/a/6/e/dBAR-008-000b0e6a-004998ec-64089008.bin");

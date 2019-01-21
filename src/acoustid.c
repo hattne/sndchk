@@ -468,9 +468,7 @@ acoustid_new()
      * XXX Is neon_init() reference-counted?
      *
      * XXX Should allow proxies using ne_session_proxy(), look into
-     * subversion code for an example.  May need to set the user agent
-     * for the session with ne_set_useragent() to comply with acoustid
-     * rules (e.g. ne_set_useragent(ac->session, "MyUserAgent/1.0");).
+     * subversion code for an example.
      *
      * See also accuraterip_new() and accuraterip_free().
      */
@@ -482,6 +480,7 @@ acoustid_new()
 
     ctx->fingerprints = ne_buffer_create();
     ctx->session = ne_session_create("http", "api.acoustid.org", 80);
+    ne_set_useragent(ctx->session, PACKAGE_NAME "/" PACKAGE_VERSION);
     ctx->indices = NULL;
     ctx->nmemb = 0;
 

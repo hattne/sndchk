@@ -1,7 +1,7 @@
 /* -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 8 -*- */
 
 /*-
- * Copyright (c) 2014, Johan Hattne
+ * Copyright © 2018-2019, Johan Hattne
  *
  * Permission to use, copy, modify, and/or distribute this software
  * for any purpose with or without fee is hereby granted, provided
@@ -19,6 +19,10 @@
  *
  * $Id:$
  */
+
+#ifdef HAVE_CONFIG_H
+#    include <config.h>
+#endif
 
 #include <stdlib.h>
 
@@ -377,6 +381,7 @@ accuraterip_new(const char *hostname, unsigned int port)
         return (NULL);
     }
     ctx->session = ne_session_create("http", "www.accuraterip.com", 80);
+    ne_set_useragent(ctx->session, PACKAGE_NAME "/" PACKAGE_VERSION);
 
     if (hostname != NULL) {
         /* Optionally, configure a proxy server for the session.  Note
@@ -390,8 +395,10 @@ accuraterip_new(const char *hostname, unsigned int port)
 
 #ifdef USE_EAC
     ctx->session_eac = ne_session_create("http", "www.exactaudiocopy.de", 80);
+    ne_set_useragent(ctx->session_eac, PACKAGE_NAME "/" PACKAGE_VERSION);
 #endif
     ctx->session_localhost = ne_session_create("http", "localhost", 1984);
+    ne_set_useragent(ctx->session_localhost, PACKAGE_NAME "/" PACKAGE_VERSION);
 
 
     /* Register redirect handling.
