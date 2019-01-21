@@ -29,12 +29,13 @@ AS_IF([test "x${have_libavcodec}" = "xno"], [
     AC_MSG_ERROR([need libavcodec 57.37.100 or later])
 ])
 
+# avformat_close_input() was introduced in 53.25.0.
 PKG_CHECK_MODULES(LIBAVFORMAT,
-                  libavformat >= 56.25.101,
+                  libavformat >= 53.25.0,
                   have_libavformat=yes,
                   have_libavformat=no)
 AS_IF([test "x${have_libavformat}" = "xno"], [
-    AC_MSG_ERROR([need libavformat 56.25.101 or later])
+    AC_MSG_ERROR([need libavformat 53.25.0 or later])
 ])
 
 PKG_CHECK_MODULES(LIBAVUTIL,
