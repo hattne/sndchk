@@ -37,20 +37,23 @@ AS_IF([test "x${have_libavformat}" = "xno"], [
     AC_MSG_ERROR([need libavformat 56.25.101 or later])
 ])
 
-PKG_CHECK_MODULES(LIBAVRESAMPLE,
-                  libavresample >= 2.1.0,
-                  have_libavresample=yes,
-                  have_libavresample=no)
-AS_IF([test "x${have_libavresample}" = "xno"], [
-    AC_MSG_ERROR([need libavresample 2.1.0 or later])
-])
-
 PKG_CHECK_MODULES(LIBAVUTIL,
                   libavutil >= 54.20.100,
 		  have_libavutil=yes,
 		  have_libavutil=no)
 AS_IF(test "x${have_libavutil}" = "xno"], [
     AC_MSG_ERROR([need libavutil 54.20.100 or later])
+])
+
+# According to https://www.ffmpeg.org/olddownload.html, libswresample
+# was introduced in 0.10, the lastest release of which is 0.10.16 from
+# 2015-03-12, with library version 0.6.100.
+PKG_CHECK_MODULES(LIBSWRESAMPLE,
+                  libswresample >= 0.6.100,
+		  have_libswresample=yes,
+		  have_libswresample=no)
+AS_IF(test "x${have_libswresample}" = "xno"], [
+    AC_MSG_ERROR([need libswresample 0.6.100 or later])
 ])
 
 

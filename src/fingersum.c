@@ -32,8 +32,8 @@
 #endif
 
 #include <libavformat/avformat.h>
-#include <libavresample/avresample.h>
 #include <libavutil/opt.h>
+#include <libswresample/swresample.h>
 
 #include "fingersum.h"
 
@@ -153,12 +153,12 @@ struct fingersum_context
 //    uint32_t checksum_v1[3];
 //    uint32_t checksum_v2[3];
 
-    /* Libav resampling context
+    /* Resampling context
      *
      * This member will be @c NULL if no resampling context is
      * required.  If present, it must be released in fingersum_free().
      */
-    AVAudioResampleContext *rc;
+    struct SwrContext *swr_ctx;
 
     /* Decoder
      *
@@ -351,7 +351,7 @@ fingersum_new(FILE *stream)
     if (ctx == NULL)
         return (NULL);
 
-    ctx->rc = NULL;
+    ctx->swr_ctx = NULL;
     ctx->avcc = NULL;
     ctx->ic = NULL;
     ctx->cc = NULL;
@@ -507,21 +507,28 @@ fingersum_new(FILE *stream)
         if (channel_layout == 0)
             channel_layout = av_get_default_channel_layout(ctx->avcc->channels);
 
-        ctx->rc = avresample_alloc_context();
-        if (ctx->rc == NULL) {
+        ctx->swr_ctx = swr_alloc();
+        if (ctx->swr_ctx == NULL) {
             fingersum_free(ctx);
             errno = ENOMEM;
             return (NULL);
         }
 
-        av_opt_set_int(ctx->rc, "in_channel_layout", channel_layout, 0);
-        av_opt_set_int(ctx->rc, "in_sample_fmt", ctx->avcc->sample_fmt, 0);
-        av_opt_set_int(ctx->rc, "in_sample_rate", ctx->avcc->sample_rate, 0);
-        av_opt_set_int(ctx->rc, "out_channel_layout", channel_layout, 0);
-        av_opt_set_int(ctx->rc, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
-        av_opt_set_int(ctx->rc, "out_sample_rate", ctx->avcc->sample_rate, 0);
+        av_opt_set_int(
+            ctx->swr_ctx, "in_channel_layout", channel_layout, 0);
+        av_opt_set_sample_fmt(
+            ctx->swr_ctx, "in_sample_fmt", ctx->avcc->sample_fmt, 0);
+        av_opt_set_int(
+            ctx->swr_ctx, "in_sample_rate", ctx->avcc->sample_rate, 0);
 
-        if (avresample_open(ctx->rc) < 0) {
+        av_opt_set_int(
+            ctx->swr_ctx, "out_channel_layout", channel_layout, 0);
+        av_opt_set_sample_fmt(
+            ctx->swr_ctx, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+        av_opt_set_int(
+            ctx->swr_ctx, "out_sample_rate", ctx->avcc->sample_rate, 0);
+
+        if (swr_init(ctx->swr_ctx) < 0) {
             fingersum_free(ctx);
             errno = EPROTONOSUPPORT;
             return (NULL);
@@ -632,8 +639,8 @@ fingersum_free(struct fingersum_context *ctx)
     if (ctx->frame != NULL)
         av_frame_free(&ctx->frame); // avcodec_free_frame(&ctx->frame);
 
-    if (ctx->rc != NULL)
-        avresample_free(&ctx->rc);
+    if (ctx->swr_ctx != NULL)
+        swr_free(&ctx->swr_ctx);
 
     if (ctx->ic != NULL)
         avformat_close_input(&ctx->ic);
@@ -776,7 +783,7 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
     /* If resampling is not required, release any externally allocated
      * buffer and return a pointer to the frame's data.
      */
-    if (ctx->rc == NULL) {
+    if (ctx->swr_ctx == NULL) {
         /* XXX Note to self: flac files, both from morituri's and xld
          * on vindaloo, go here.
          */
@@ -806,8 +813,10 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
         *size = ctx->frame->nb_samples;
     }
 
-    if (avresample_convert(ctx->rc, data, 0, ctx->frame->nb_samples,
-                           ctx->frame->data, 0, ctx->frame->nb_samples) < 0) {
+    if (swr_convert(
+            ctx->swr_ctx,
+            data, ctx->frame->nb_samples,
+            (const uint8_t **)ctx->frame->data, ctx->frame->nb_samples) < 0) {
         errno = EPROTO;
         return (-1);
     }

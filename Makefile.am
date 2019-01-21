@@ -12,14 +12,14 @@ accurip_SOURCES = test/accurip.c
 accurip_CFLAGS  = @NEON_CFLAGS@          \
                   @LIBAVCODEC_CFLAGS@    \
                   @LIBAVFORMAT_CFLAGS@   \
-                  @LIBAVRESAMPLE_CFLAGS@ \
                   @LIBAVUTIL_CFLAGS@     \
+                  @LIBSWRESAMPLE_CFLAGS@ \
                   @ZLIB_CFLAGS@
 accurip_LDADD   = @NEON_LIBS@          \
                   @LIBAVCODEC_LIBS@    \
                   @LIBAVFORMAT_LIBS@   \
-                  @LIBAVRESAMPLE_LIBS@ \
                   @LIBAVUTIL_LIBS@     \
+                  @LIBSWRESAMPLE_LIBS@ \
                   @ZLIB_LIBS@
 
 diff_SOURCES = src/fingersum.c  \
@@ -29,15 +29,15 @@ diff_SOURCES = src/fingersum.c  \
 diff_CFLAGS  = @NEON_CFLAGS@           \
                @LIBAVCODEC_CFLAGS@     \
                @LIBAVFORMAT_CFLAGS@    \
-               @LIBAVRESAMPLE_CFLAGS@  \
                @LIBAVUTIL_CFLAGS@      \
+               @LIBSWRESAMPLE_CFLAGS@  \
                @LIBCHROMAPRINT_CFLAGS@ \
                @ZLIB_CFLAGS@
 diff_LDADD   = @NEON_LIBS@           \
                @LIBAVCODEC_LIBS@     \
                @LIBAVFORMAT_LIBS@    \
-               @LIBAVRESAMPLE_LIBS@  \
                @LIBAVUTIL_LIBS@      \
+               @LIBSWRESAMPLE_LIBS@  \
                @LIBCHROMAPRINT_LIBS@ \
                @ZLIB_LIBS@           \
                @M_LIBS@
@@ -53,15 +53,15 @@ fingerquery_SOURCES = src/acoustid.c     \
 fingerquery_CFLAGS  = @NEON_CFLAGS@           \
                       @LIBAVCODEC_CFLAGS@     \
                       @LIBAVFORMAT_CFLAGS@    \
-                      @LIBAVRESAMPLE_CFLAGS@  \
                       @LIBAVUTIL_CFLAGS@      \
+                      @LIBSWRESAMPLE_CFLAGS@  \
                       @LIBCHROMAPRINT_CFLAGS@ \
                       @ZLIB_CFLAGS@
 fingerquery_LDADD   = @NEON_LIBS@           \
                       @LIBAVCODEC_LIBS@     \
                       @LIBAVFORMAT_LIBS@    \
-                      @LIBAVRESAMPLE_LIBS@  \
                       @LIBAVUTIL_LIBS@      \
+                      @LIBSWRESAMPLE_LIBS@  \
                       @LIBCHROMAPRINT_LIBS@ \
                       @ZLIB_LIBS@           \
                       @M_LIBS@
@@ -73,14 +73,14 @@ fingersum_SOURCES = src/fingersum.c  \
                     test/fingersum.c
 fingersum_CFLAGS  = @LIBAVCODEC_CFLAGS@     \
                     @LIBAVFORMAT_CFLAGS@    \
-                    @LIBAVRESAMPLE_CFLAGS@  \
                     @LIBAVUTIL_CFLAGS@      \
+                    @LIBSWRESAMPLE_CFLAGS@  \
                     @LIBCHROMAPRINT_CFLAGS@ \
                     @ZLIB_CFLAGS@
 fingersum_LDADD   = @LIBAVCODEC_LIBS@     \
                     @LIBAVFORMAT_LIBS@    \
-                    @LIBAVRESAMPLE_LIBS@  \
                     @LIBAVUTIL_LIBS@      \
+                    @LIBSWRESAMPLE_LIBS@  \
                     @LIBCHROMAPRINT_LIBS@ \
                     @ZLIB_LIBS@           \
                     @M_LIBS@
@@ -102,16 +102,16 @@ sndchk_SOURCES = src/accuraterip.c   \
 sndchk_CFLAGS  = @NEON_CFLAGS@            \
                  @LIBAVCODEC_CFLAGS@      \
                  @LIBAVFORMAT_CFLAGS@     \
-                 @LIBAVRESAMPLE_CFLAGS@   \
                  @LIBAVUTIL_CFLAGS@       \
+                 @LIBSWRESAMPLE_CFLAGS@   \
                  @LIBCHROMAPRINT_CFLAGS@  \
                  @LIBMUSICBRAINZ5_CFLAGS@ \
                  @ZLIB_CFLAGS@
 sndchk_LDADD   = @NEON_LIBS@            \
                  @LIBAVCODEC_LIBS@      \
                  @LIBAVFORMAT_LIBS@     \
-                 @LIBAVRESAMPLE_LIBS@   \
                  @LIBAVUTIL_LIBS@       \
+                 @LIBSWRESAMPLE_LIBS@   \
                  @LIBCHROMAPRINT_LIBS@  \
                  @LIBMUSICBRAINZ5_LIBS@ \
                  @ZLIB_LIBS@            \

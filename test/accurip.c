@@ -10,8 +10,8 @@
 #include <inttypes.h>
 
 #include <libavformat/avformat.h>
-#include <libavresample/avresample.h>
 #include <libavutil/opt.h>
+#include <libswresample/swresample.h>
 
 /* XXX Which ones are actually needed?
  */
@@ -438,7 +438,7 @@ main(int argc, char *argv[])
 
     for (i = 2; i < argc; i++) {
         AVPacket packet;
-        AVAudioResampleContext *rc;
+        struct SwrContext  *swr_ctx;
         AVFormatContext *ic;
         AVStream *stream;
         AVFrame *frame;
@@ -447,7 +447,7 @@ main(int argc, char *argv[])
         int consumed, duration, nb_samples,  linesize;
 
         ic = NULL;
-        rc = NULL;
+        swr_ctx = NULL;
         if (avformat_open_input(&ic, argv[i], NULL, NULL) != 0) {
             /* fprintf(
              *     stderr, "ERROR: couldn't open the file\n");
@@ -527,22 +527,29 @@ main(int argc, char *argv[])
             if (!channel_layout)
                 channel_layout = av_get_default_channel_layout(cc->channels);
 
-            rc = avresample_alloc_context();
-            if (rc == NULL) {
+            swr_ctx = swr_alloc();
+            if (swr_ctx == NULL) {
                 /* fprintf(
                  *     stderr, "ERROR: couldn't allocate audio converter\n");
                  */
                 return (-1);
             }
 
-            av_opt_set_int(rc, "in_channel_layout", channel_layout, 0);
-            av_opt_set_int(rc, "in_sample_fmt", cc->sample_fmt, 0);
-            av_opt_set_int(rc, "in_sample_rate", cc->sample_rate, 0);
-            av_opt_set_int(rc, "out_channel_layout", channel_layout, 0);
-            av_opt_set_int(rc, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
-            av_opt_set_int(rc, "out_sample_rate", cc->sample_rate, 0);
+            av_opt_set_int(
+                swr_ctx, "in_channel_layout", channel_layout, 0);
+            av_opt_set_sample_fmt(
+                swr_ctx, "in_sample_fmt", cc->sample_fmt, 0);
+            av_opt_set_int(
+                swr_ctx, "in_sample_rate", cc->sample_rate, 0);
 
-            ret = avresample_open(rc);
+            av_opt_set_int(
+                swr_ctx, "out_channel_layout", channel_layout, 0);
+            av_opt_set_sample_fmt(
+                swr_ctx, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
+            av_opt_set_int(
+                swr_ctx, "out_sample_rate", cc->sample_rate, 0);
+
+            ret = swr_init(swr_ctx);
             if (ret < 0) {
                 /* fprintf(
                  *     stderr, "ERROR: couldn't initialize the audio converter\n");
@@ -592,7 +599,7 @@ main(int argc, char *argv[])
                  */
                 continue;
 
-            if (rc != NULL) {
+            if (swr_ctx != NULL) {
                 if (frame->nb_samples > nb_samples) {
                     av_freep(&output[0]);
                     ret = av_samples_alloc(
@@ -609,9 +616,9 @@ main(int argc, char *argv[])
                     nb_samples = frame->nb_samples;
                 }
 
-                ret = avresample_convert(
-                    rc, output, 0, frame->nb_samples,
-                    (uint8_t **)frame->data, 0, frame->nb_samples);
+                ret = swr_convert(
+                    swr_ctx, output, frame->nb_samples,
+                    (const uint8_t **)frame->data, frame->nb_samples);
                 if (ret < 0) {
                     /* fprintf(
                      *     stderr, "ERROR: couldn't convert the audio\n");
