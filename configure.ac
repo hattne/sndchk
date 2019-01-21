@@ -9,10 +9,15 @@
 AC_PREREQ(2.59)
 AC_INIT([sndchk], [0.0.0], [johan@hattne.se])
 AC_CONFIG_AUX_DIR(build-aux)
+AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE([1.9 foreign subdir-objects])
 
 AC_PROG_CC
+
+
+# Registered API key for sndchk 0.0.0.
+AC_DEFINE([ACOUSTID_CLIENT], ["4ACmQIrN0I"], [AcoustID client API key])
 
 
 # FFmpeg [https://www.ffmpeg.org] dependencies

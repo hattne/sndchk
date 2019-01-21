@@ -1,7 +1,7 @@
 /* -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 8 -*- */
 
 /*-
- * Copyright (c) 2014, Johan Hattne
+ * Copyright © 2018-2019, Johan Hattne
  *
  * Permission to use, copy, modify, and/or distribute this software
  * for any purpose with or without fee is hereby granted, provided
@@ -19,6 +19,10 @@
  *
  * $Id:$
  */
+
+#ifdef HAVE_CONFIG_H
+#    include <config.h>
+#endif
 
 #include <sys/stat.h> // XXX For command-line comparison
 
@@ -700,19 +704,10 @@ _dispatch(struct acoustid_context *ctx, ne_xml_parser *parser, ...)
      *
      * XXX Should we not check that the server actually accepts
      * gzip-compressed data before feeding it?
-     *
-     * XXX Really should register this application!  2017-03-20:
-     * registered sndchk-0.0.0 (unreleased) for API key 4ACmQIrN0I.
      */
     query = ne_buffer_ncreate(512 + ctx->nmemb * 4096);
-    _catf(query, "batch=%zd"
-//          "&client=8XaBELgH"
-//          "&client=Tm_AtHmUCAc"
-//          "&client=RoQP9dqhrAg"
-//          "&client=7rTQr5mD1AE"
-          "&client=4ACmQIrN0I"
-          "&format=xml",
-          ctx->nmemb);
+    _catf(
+        query, "batch=%zd&client=" ACOUSTID_CLIENT "&format=xml", ctx->nmemb);
 
     va_start(ap, parser);
     for (i = 0; ; i++) {
