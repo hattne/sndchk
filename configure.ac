@@ -7,7 +7,11 @@
 ## offered as-is, without any warranty.
 
 AC_PREREQ(2.59)
-AC_INIT([sndchk], [0.0.0], [johan@hattne.se])
+AC_INIT([sndchk],
+	[0.0.0],
+	[johan@hattne.se],
+	[sndchk],
+	[http://www.hattne.se/sndchk])
 AC_CONFIG_AUX_DIR(build-aux)
 AC_CONFIG_HEADERS([config.h])
 
