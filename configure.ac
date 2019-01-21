@@ -39,12 +39,13 @@ AS_IF([test "x${have_libavformat}" = "xno"], [
     AC_MSG_ERROR([need libavformat 56.25.101 or later])
 ])
 
+# av_opt_set_sample_fmt() was introduced in 52.9.100.
 PKG_CHECK_MODULES(LIBAVUTIL,
-                  libavutil >= 54.20.100,
+                  libavutil >= 52.9.100,
 		  have_libavutil=yes,
 		  have_libavutil=no)
 AS_IF(test "x${have_libavutil}" = "xno"], [
-    AC_MSG_ERROR([need libavutil 54.20.100 or later])
+    AC_MSG_ERROR([need libavutil 52.9.100 or later])
 ])
 
 # According to https://www.ffmpeg.org/olddownload.html, libswresample
