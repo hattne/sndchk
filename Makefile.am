@@ -119,6 +119,6 @@ sndchk_LDADD   = @NEON_LIBS@            \
 
 # This was renamed from "tags" to "sndtags" so as not to clash with
 # Automake's reserved word.
-sndtags_SOURCES = test/tags.c
+sndtags_SOURCES = test/sndtags.c
 sndtags_CFLAGS  = @LIBAVFORMAT_CFLAGS@
 sndtags_LDADD   = @LIBAVFORMAT_LIBS@

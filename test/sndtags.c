@@ -5,24 +5,26 @@
  * $Id:$
  */
 
-// Alternative: get the metadata using libav?
-// AVDictionary *metadata=container->metadata; [from http://stackoverflow.com/questions/9799560/decode-audio-using-libavcodec-and-play-using-libao]
-//
-// But what about BPM [or is this tmpo?], COMPILATION [cpil], aART
-// [but this is album artist, so what about album artwork], and
-// possibly pgap [gapless playback], as well as the Apple-specific
-// ones:
-//
-//   ----:com.apple.iTunes:Encoding Params
-//   ----:com.apple.iTunes:iTunNORM
-//   ----:com.apple.iTunes:iTunes_CDDB_1
-//   ----:com.apple.iTunes:iTunes_CDDB_TrackNumber
-//
-// Only remaining item is album artwork!
-//
-// make tags && ./tags test_album/01\ Liquid\ insects.m4a
-// avmetareadwrite -o test_album/01\ Liquid\ insects.m4a 
-
+/* Alternative: get the metadata using libav?
+ * AVDictionary *metadata=container->metadata; [from http://stackoverflow.com/questions/9799560/decode-audio-using-libavcodec-and-play-using-libao]
+ *
+ * But what about BPM [or is this tmpo?], COMPILATION [cpil], aART
+ * [but this is album artist, so what about album artwork], and
+ * possibly pgap [gapless playback], as well as the Apple-specific
+ * ones:
+ *
+ *   ----:com.apple.iTunes:Encoding Params
+ *   ----:com.apple.iTunes:iTunNORM
+ *   ----:com.apple.iTunes:iTunes_CDDB_1
+ *   ----:com.apple.iTunes:iTunes_CDDB_TrackNumber
+ *
+ * Only remaining item is album artwork!
+ *
+ * make tags && ./tags test_album/01\ Liquid\ insects.m4a
+ * avmetareadwrite -o test_album/01\ Liquid\ insects.m4a
+ *
+ * XXX Should probably merge this into fingerquery
+ */
 #include <stdio.h>
 
 #include <libavformat/avformat.h>
