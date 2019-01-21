@@ -35,6 +35,8 @@ def redirect_handler_factory():
     maybe rather trace where the FreeDB stuff in libmusicbrainz comes
     from.
 
+    XXX The server could be eliminated by configuration options to
+    remap discs in sndchk.
     """
     class RedirectHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 
@@ -62,6 +64,8 @@ def redirect_handler_factory():
         }
 
         def do_GET(self):
+            # XXX Print the user agent string
+
             #print "Got command " + self.command
             #print "Got path " + self.path
 
