@@ -15,9 +15,7 @@ AM_INIT_AUTOMAKE([1.9 foreign subdir-objects])
 AC_PROG_CC
 
 
-# FFmpeg [https://www.ffmpeg.org]: need a version that extracts
-# sort_composer.  The change from 2014-11-28 was merged into 2.6 on
-# 2014-12-08; the closest release is 2.6.9 from 2016-05-03.
+# FFmpeg [https://www.ffmpeg.org] dependencies
 #
 # avcodec_send_packet() and avcodec_receive_frame() were introduced in
 # 57.37.100.
@@ -29,13 +27,16 @@ AS_IF([test "x${have_libavcodec}" = "xno"], [
     AC_MSG_ERROR([need libavcodec 57.37.100 or later])
 ])
 
-# avformat_close_input() was introduced in 53.25.0.
+# avformat_close_input() was introduced in 53.25.0.  The ability to
+# extract sort_composer in mov_read_udta_string() was introduced on
+# 2014-11-28 and merged into 2.6 on 2014-12-08; the closest release is
+# 2.6.9 from 2016-05-03.
 PKG_CHECK_MODULES(LIBAVFORMAT,
-                  libavformat >= 53.25.0,
+                  libavformat >= 56.25.101,
                   have_libavformat=yes,
                   have_libavformat=no)
 AS_IF([test "x${have_libavformat}" = "xno"], [
-    AC_MSG_ERROR([need libavformat 53.25.0 or later])
+    AC_MSG_ERROR([need libavformat 56.25.101 or later])
 ])
 
 PKG_CHECK_MODULES(LIBAVUTIL,
