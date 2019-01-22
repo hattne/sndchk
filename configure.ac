@@ -108,10 +108,9 @@ AS_IF([test "x${have_libmusicbrainz5}" = "xyes"], [
     CFLAGS="${CFLAGS} ${LIBMUSICBRAINZ5_CFLAGS}"
     libs_save=${LIBS}
     LIBS="${LIBS} ${LIBMUSICBRAINZ5_LIBS}"
-    AC_CHECK_LIB(musicbrainz5,
-                 mb5_disc_get_offsetlist,
-		 have_libmusicbrainz5=yes,
-		 have_libmusicbrainz5=no)
+    AC_CHECK_FUNC(mb5_disc_get_offsetlist,
+                  have_libmusicbrainz5=yes,
+                  have_libmusicbrainz5=no)
     LIBS=${libs_save}
     CFLAGS=${cflags_save}
 ])
