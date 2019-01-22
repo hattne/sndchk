@@ -16,8 +16,6 @@
  * OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
- * $Id:$
  */
 
 #include <sys/stat.h>
@@ -184,7 +182,7 @@ struct fingersum_context
      * The stream is part of the input context and is determined in
      * fingersum_new().  It is included here for convenience.  It will
      * be released with ic in fingersum_free().  XXX Verify with
-     * valgrind that this actually is the case.
+     * Valgrind that this actually is the case.
      */
     AVStream *stream;
 
@@ -280,6 +278,12 @@ _init()
         return (-1);
 
     if (initialised == 0) {
+#if LIBAVFORMAT_VERSION_MAJOR < 58
+        /* av_register_all() was made a NOP and deprecated in FFmpeg
+         * 4.0, but needs to be called for older versions.
+         */
+        av_register_all();
+#endif
         av_log_set_level(AV_LOG_ERROR);
         initialised = 1;
     }
@@ -399,7 +403,7 @@ fingersum_new(FILE *stream)
         errno = EPROTONOSUPPORT;
         return (NULL);
     }
-    if (avformat_open_input(&ctx->ic, "", NULL, &options) != 0) {
+    if (avformat_open_input(&ctx->ic, NULL, NULL, &options) != 0) {
         fingersum_free(ctx);
         errno = EPROTONOSUPPORT;
         return (NULL);
@@ -407,7 +411,7 @@ fingersum_new(FILE *stream)
     option = NULL;
     while (av_dict_get(options, "", option, AV_DICT_IGNORE_SUFFIX) != NULL) {
         /* XXX Oddly option appears to be NULL with flac-files from
-         * xld on vindaloo, and av_dict_get() continues to return
+         * XLD on vindaloo, and av_dict_get() continues to return
          * non-NULL!
          */
         if (option == NULL)
@@ -829,8 +833,8 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
  * checksum calculator.  This function cannot fail.
  *
  * XXX Is it really safe to assume that stream->duration is the total
- * number of samples?  Perhaps try it on the m3u slay radio stream?
- * If not revert to tagger.cpp.bak-04.  Alternatively, scan the last
+ * number of samples?  Perhaps try it on the m3u SLAYRadio stream?  If
+ * not revert to tagger.cpp.bak-04.  Alternatively, scan the last
  * stream twice: once to figure out its length, a second time to
  * actually decode it.
  *
@@ -1052,7 +1056,7 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
         /* XXX PLAYGROUND START */
 
         /* The leader: do the cumulative thing here, so nothing needs
-         * to be done to finalize, but subtraction needed in checksum
+         * to be done to finalise, but subtraction needed in checksum
          * comparator/offset finder instead.
          *
          * XXX Note that now, offset_array_{1,2} is kept base zero.
@@ -2004,7 +2008,7 @@ _process(struct fingersum_context *ctx, ChromaprintContext *cc, int64_t len)
          *
          * And note that the ARv1 checksum can be precalculated
          * and stored as two numbers and that the leading offset
-         * can be precalcuted and stored as partial checksums.
+         * can be precalculated and stored as partial checksums.
          *
          * XXX This part may be buggered!  See Boney M.
          *
@@ -2874,7 +2878,7 @@ _ar2_cksum_MINUS(uint32_t cksum, int64_t offset, const void *buf, size_t len)
  * track.
  *
  * XXX ACTUALLY: If we do not have any offsets, calculate the
- * offset-finding checksum, otherwise calculate the offseted
+ * offset-finding checksum, otherwise calculate the offset
  * checksums.
  *
  * XXX Alternative design: register a previous and next track in a
@@ -3132,7 +3136,7 @@ fingersum_get_result_3(struct fingersum_context *leader,
                  *
                  * XXX There appears to be some breakage here: see
                  * Twin Peaks.  Maybe these sort of issues are better
-                 * adressed once the code is a tad tidier.
+                 * addressed once the code is a tad tidier.
                  */
                 buf = (void *)(center->samples + 1 * 5 * 588 + 1 + offset_center->offset);
                 len = ((1 * 5 * 588 + 0) - offset_center->offset) * 2 * sizeof(int16_t);
@@ -3300,7 +3304,7 @@ fingersum_get_duration(const struct fingersum_context *ctx)
 
 
 /* XXX Don't forget about all the metadata that we cannot extract,
- * such as the iTunes tags.  Reread the libav documentation on this,
+ * such as the iTunes tags.  Reread the Libav documentation on this,
  * in particular, what is AV_DICT_IGNORE_SUFFIX?
  *
 
@@ -3374,7 +3378,7 @@ fingersum_get_metadata(const struct fingersum_context *ctx)
     size_t inbytesleft, outbytesleft, ret; // XXX what are the POSIX names?
 
 
-    /* XXX Should be part of context?  Is metdata always UTF-8?  How
+    /* XXX Should be part of context?  Is metadata always UTF-8?  How
      * to avoid mojibake http://en.wikipedia.org/wiki/Mojibake?  See
      * also http://en.wikipedia.org/wiki/ID3.  Check
      * https://libav.org/documentation/doxygen/master/group__metadata__api.html.
