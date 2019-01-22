@@ -16,8 +16,6 @@
  * OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
- * $Id:$
  */
 
 #ifdef HAVE_CONFIG_H
@@ -29,6 +27,7 @@
 #include <stdlib.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <string.h>
@@ -130,7 +129,7 @@ static pthread_mutex_t _mutex_cache = PTHREAD_MUTEX_INITIALIZER;
 static pthread_mutex_t _mutex_queries = PTHREAD_MUTEX_INITIALIZER;
 
 /* The single worker thread.  This is an opaque structure which must
- * be initialized with pthread_create(3) before use.
+ * be initialised with pthread_create(3) before use.
  */
 static pthread_t _thread;
 
@@ -143,6 +142,8 @@ static char *_name_queued = NULL;
 static char *_name_processed = NULL;
 
 /* The named query semaphore
+ *
+ * XXX This is not unlinked!
  */
 static sem_t *_sem_queued = SEM_FAILED;
 
@@ -222,7 +223,7 @@ _query_free(struct _query *query)
     }
 
     // XXX Free the releases
-    
+
     free(query);
 }
 
@@ -364,7 +365,7 @@ _query_add_metadata(struct _query *query, Mb5Metadata Metadata)
         return (1);
     }
 
-    // Output not supproted
+    // Output not supported
     printf("GOT NEITHER RELEASE NOR RELEASELIST\n");
     return (-1);
 }
@@ -376,7 +377,7 @@ _query_add_metadata(struct _query *query, Mb5Metadata Metadata)
 static struct _param *
 _query_has_param(struct _query *query,
                  const char *name,
-                 const char *value) 
+                 const char *value)
 {
     size_t i;
 
@@ -386,7 +387,7 @@ _query_has_param(struct _query *query,
             return (query->params[i]);
         }
     }
-    
+
     return (NULL);
 }
 
@@ -425,7 +426,7 @@ _find_in_cache(struct musicbrainz_ctx *ctx,
                const char *resource,
                size_t nmemb_params,
                char **param_names,
-               char **param_values) 
+               char **param_values)
 {
     struct _query *query;
     size_t i, j;
@@ -438,7 +439,7 @@ _find_in_cache(struct musicbrainz_ctx *ctx,
 
         if (strcmp(query->entity, entity) != 0)
             continue;
-        
+
         if (strcmp(query->id, id) != 0)
             continue;
 
@@ -492,7 +493,7 @@ _sem_open(char **name, sem_t **sem)
         if (fd == -1)
             break;
 
-        s = sem_open(n, O_CREAT | O_EXCL, 0644,0);
+        s = sem_open(n + 4, O_CREAT | O_EXCL, 0644,0);
         if (close(fd) != 0 || unlink(n) != 0)
             break;
         if (s != SEM_FAILED) {
@@ -586,7 +587,7 @@ _process(struct _query *query, struct musicbrainz_ctx *ctx)
     msg = ne_buffer_create();
     val_limit = ne_buffer_create();
     val_offset = ne_buffer_create();
-    
+
     _set_value(val_limit, "%zd", MB_LIMIT);
     names[query->nmemb_params + 0] = "limit";
     values[query->nmemb_params + 0] = val_limit->data;
@@ -608,13 +609,13 @@ _process(struct _query *query, struct musicbrainz_ctx *ctx)
         _set_value(val_offset, "%zd", num_offset += size /* size + 0 */);
         values[query->nmemb_params + 1] = val_offset->data;
 //        printf("INCREASING offset by %d to %s\n", size, val_offset->data);
-        
+
         for (i = 0; ; i++) {
             /* Ensure no more requests per unit time than are allowed.
              * Rate limiting: no more than 1 request per second
              * [http://musicbrainz.org/doc/Development/XML_Web_Service/Version_2]
              *
-             * Note somewhere (maybe not here): we are issueing
+             * Note somewhere (maybe not here): we are assuming
              * "browse" requests.
              */
             if (ratelimit_musicbrainz() != 0) {
@@ -694,7 +695,7 @@ _process(struct _query *query, struct musicbrainz_ctx *ctx)
             free(names);
             return (-1);
         }
-        
+
 
         /* Adjust the value for the offset item for the next iteration
          * (next page).  The offset item is guaranteed to be the last
@@ -707,7 +708,7 @@ _process(struct _query *query, struct musicbrainz_ctx *ctx)
          * not page.
          *
          * XXX Review the paging stuff on the MusicBrainz pages,
-         * particlarly the thing with the offset [add zero below, not
+         * particularly the thing with the offset [add zero below, not
          * one].
          */
     } while (size >= MB_LIMIT);
@@ -723,7 +724,7 @@ _process(struct _query *query, struct musicbrainz_ctx *ctx)
 
     if (sem_post(_sem_processed) != 0)
         return (-1);
-    
+
     ne_buffer_destroy(val_offset);
     ne_buffer_destroy(val_limit);
     ne_buffer_destroy(msg);
@@ -750,7 +751,7 @@ _start(void *arg)
             }
             return (NULL);
         }
-        
+
         if (pthread_setcancelstate(PTHREAD_CANCEL_DISABLE, &oldstate) != 0)
             return (NULL);
         if (pthread_mutex_lock(&_mutex_queries) != 0)
@@ -763,7 +764,7 @@ _start(void *arg)
                 return (NULL);
             continue;
         }
-            
+
         query = SIMPLEQ_FIRST(&_queries);
         if (query == NULL)
             printf("*** SIMPLEQ BOGUS #1 ***\n");
@@ -814,7 +815,7 @@ musicbrainz_new()
             return (NULL);
         }
     }
-    
+
     if (pthread_create(&_thread, NULL, _start, ctx) != 0) {
         musicbrainz_free(ctx);
         return (NULL);
@@ -834,7 +835,7 @@ musicbrainz_free(struct musicbrainz_ctx *ctx)
         // XXX Free the cache.
         pthread_mutex_unlock(&_mutex_cache);
     }
-    
+
     if (ctx->Query != NULL)
         mb5_query_delete(ctx->Query);
 
@@ -886,13 +887,13 @@ musicbrainz_query(struct musicbrainz_ctx *ctx,
 
 Mb5Release
 musicbrainz_get_release(struct musicbrainz_ctx *ctx,
-			const char *entity,
-			const char *id,
-			const char *resource,
-			size_t num_params,
-			char **param_names,
-			char **param_values,
-			const char *release_id)
+                        const char *entity,
+                        const char *id,
+                        const char *resource,
+                        size_t num_params,
+                        char **param_names,
+                        char **param_values,
+                        const char *release_id)
 {
     Mb5Release Release;
     ne_buffer *ID;

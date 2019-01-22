@@ -1,7 +1,7 @@
 /* -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 8 -*- */
 
 /*-
- * Copyright (c) 2014, Johan Hattne
+ * Copyright © 2018-2019, Johan Hattne
  *
  * Permission to use, copy, modify, and/or distribute this software
  * for any purpose with or without fee is hereby granted, provided
@@ -16,8 +16,6 @@
  * OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
- * $Id:$
  */
 
 #ifndef POOL_H
@@ -147,16 +145,16 @@ pool_free_pc(struct pool_context *pc);
  */
 int
 add_request(struct pool_context *pc,
-	    struct fingersum_context *ctx,
-	    void *arg,
-	    int flags);
+            struct fingersum_context *ctx,
+            void *arg,
+            int flags);
 
 
 /**
  * @brief Retrieve result from pool context
  *
  * If all results have been retrieved, get_results() returns @c -1 and
- * sets the global variable @c errno to @c ENOMSG. XXX Should have
+ * sets the global variable @c errno to @c ENOMSG.  XXX Should have
  * been ECHILD (see wait(2).
  *
  * XXX This function probably needs a better name!  Should mirror
@@ -176,9 +174,9 @@ add_request(struct pool_context *pc,
  */
 int
 get_result(struct pool_context *pc,
-	   struct fingersum_context **ctx,
-	   void **arg,
-	   int *status);
+           struct fingersum_context **ctx,
+           void **arg,
+           int *status);
 
 POOL_END_C_DECLS
 

@@ -1,7 +1,7 @@
 /* -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 8 -*- */
 
 /*-
- * Copyright (c) 2014, Johan Hattne
+ * Copyright © 2018-2019, Johan Hattne
  *
  * Permission to use, copy, modify, and/or distribute this software
  * for any purpose with or without fee is hereby granted, provided
@@ -16,14 +16,13 @@
  * OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
- * $Id:$
  */
 
 #include <stdio.h>
 #include <stdlib.h>
 
 #include <errno.h>
+#include <fcntl.h>
 #include <pthread.h>
 #include <semaphore.h>
 #include <string.h>
@@ -179,7 +178,7 @@ _cleanup(void *arg)
  *
  * XXX All threads should exit with CANCEL-something.  Note here, and
  * check in caller?  It should be safe to call this from several
- * places simulataneously.
+ * places simultaneously.
  */
 static int
 _join(pthread_t thread, void **value_ptr)
@@ -277,7 +276,7 @@ _sem_open(char **name, sem_t **sem)
         if (fd == -1)
             break;
 
-        s = sem_open(n, O_CREAT | O_EXCL, 0644,0);
+        s = sem_open(n + 4, O_CREAT | O_EXCL, 0644,0);
         if (close(fd) != 0 || unlink(n) != 0)
             break;
         if (s != SEM_FAILED) {
@@ -368,7 +367,7 @@ _start(void *arg)
          * 2018-11-02: race condition? It would seem that cancel
          * requests are not properly queued.  If a pthread_cancel is
          * called while PTHREAD_CANCEL_DISABLE, this code may hang
-         * indefinetely.  Really, there's no need to restore the
+         * indefinitely.  Really, there's no need to restore the
          * cancel state, since the process will finish, but what about
          * the cleanup function?
          */
@@ -435,7 +434,7 @@ _start(void *arg)
  *
  * Ignore any pthread-related errors, because there is nothing that
  * can be done about them here.  _pool_free() must reset everything to
- * the initial state to permit subsequent re-initalisation.
+ * the initial state to permit subsequent re-initialisation.
  */
 static void
 _pool_free()
@@ -478,7 +477,7 @@ _pool_free()
 
     if (_pool_requests_sem != NULL) {
         sem_close(_pool_requests_sem);
-        sem_unlink(_pool_requests_name);
+        sem_unlink(_pool_requests_name + 4);
         _pool_requests_sem = SEM_FAILED;
     }
     printf("    freed semaphore\n");
@@ -655,7 +654,7 @@ pool_free_pc(struct pool_context *pc)
 
 
     /* Discard any queued jobs of the pool context.  This will cause
-     * the queue and the semaphore to loose synchronization.
+     * the queue and the semaphore to loose synchronisation.
      *
      * XXX Maybe want a separate function for removing a job from the
      * pool context?  Or subtracting the inprogress counter?
@@ -718,7 +717,7 @@ pool_free_pc(struct pool_context *pc)
         printf("  locked\n");
         if (pc->sem != NULL) {
             sem_close(pc->sem);
-            sem_unlink(pc->name);
+            sem_unlink(pc->name + 4);
         }
         printf("  removed\n");
         if (pc->name != NULL)
