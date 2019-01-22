@@ -18,6 +18,10 @@
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
+#ifdef HAVE_CONFIG_H
+#    include <config.h>
+#endif
+
 #ifdef __MACH__
 #    include <mach/clock.h>
 #    include <mach/mach.h>
@@ -53,12 +57,9 @@ static struct timespec _clock_musicbrainz = {0, _NSPS};
 static int
 _clock_gettime(struct timespec *tp)
 {
-#ifdef HAVE_CLOCK_GETTIME
-    /* XXX Review the documentation @ OpenBSD
-     */
+#if defined(HAVE_CLOCK_GETTIME)
     return (clock_gettime(CLOCK_MONOTONIC, tp));
-#else
-#  ifdef __MACH__
+#elif defined(__MACH__)
     /* Mac OS X does not implement the POSIX clock_gettime(2)
      * interface.  XXX Probably not so great, nor is relying on
      * __APPLE__.  Also, this does not do any error reporting.  See
@@ -75,7 +76,6 @@ _clock_gettime(struct timespec *tp)
     tp->tv_nsec = mts.tv_nsec;
 
     return (0);
-#  endif
 #endif
 }
 

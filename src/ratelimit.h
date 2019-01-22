@@ -1,7 +1,7 @@
 /* -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 8 -*- */
 
 /*-
- * Copyright (c) 2014, Johan Hattne
+ * Copyright © 2018-2019, Johan Hattne
  *
  * Permission to use, copy, modify, and/or distribute this software
  * for any purpose with or without fee is hereby granted, provided
@@ -16,8 +16,6 @@
  * OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
- * $Id:$
  */
 
 #ifndef RATELIMIT_H
@@ -38,7 +36,7 @@ RATELIMIT_BEGIN_C_DECLS
  * @brief Ensure no more requests per unit time than are allowed
  *
  * different rates for different services.  Acts as a lock [or lookup
- * the proper term on wikipedia].
+ * the proper term on Wikipedia].
  *
  * XXX Ensure this sets errno properly
  */

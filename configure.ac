@@ -8,20 +8,22 @@
 
 AC_PREREQ(2.59)
 AC_INIT([sndchk],
-	[0.0.0],
-	[johan@hattne.se],
-	[sndchk],
-	[http://www.hattne.se/sndchk])
+        [0.0.0],
+        [johan@hattne.se],
+        [sndchk],
+        [http://www.hattne.se/sndchk])
 AC_CONFIG_AUX_DIR(build-aux)
 AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE([1.9 foreign subdir-objects])
 
-AC_PROG_CC
-
 
 # Registered API key for sndchk 0.0.0.
 AC_DEFINE([ACOUSTID_CLIENT], ["4ACmQIrN0I"], [AcoustID client API key])
+
+
+# Checks for programs.
+AC_PROG_CC
 
 
 # FFmpeg [https://www.ffmpeg.org] dependencies
@@ -51,19 +53,19 @@ AS_IF([test "x${have_libavformat}" = "xno"], [
 # av_opt_set_sample_fmt() was introduced in 52.9.100.
 PKG_CHECK_MODULES(LIBAVUTIL,
                   libavutil >= 52.9.100,
-		  have_libavutil=yes,
-		  have_libavutil=no)
+                  have_libavutil=yes,
+                  have_libavutil=no)
 AS_IF(test "x${have_libavutil}" = "xno"], [
     AC_MSG_ERROR([need libavutil 52.9.100 or later])
 ])
 
 # According to https://www.ffmpeg.org/olddownload.html, libswresample
-# was introduced in 0.10, the lastest release of which is 0.10.16 from
+# was introduced in 0.10, the latest release of which is 0.10.16 from
 # 2015-03-12, with library version 0.6.100.
 PKG_CHECK_MODULES(LIBSWRESAMPLE,
                   libswresample >= 0.6.100,
-		  have_libswresample=yes,
-		  have_libswresample=no)
+                  have_libswresample=yes,
+                  have_libswresample=no)
 AS_IF(test "x${have_libswresample}" = "xno"], [
     AC_MSG_ERROR([need libswresample 0.6.100 or later])
 ])
@@ -74,8 +76,8 @@ AS_IF(test "x${have_libswresample}" = "xno"], [
 # on 2014-08-26; earlier versions may work.
 PKG_CHECK_MODULES(LIBCHROMAPRINT,
                   libchromaprint >= 1.1,
-		  have_libchromaprint=yes,
-		  have_libchromaprint=no)
+                  have_libchromaprint=yes,
+                  have_libchromaprint=no)
 AS_IF([test "x${have_libchromaprint}" = "xno"], [
     AC_MSG_ERROR([need libchromaprint 1.1 or later])
 ])
@@ -101,8 +103,8 @@ AC_MSG_NOTICE([Found ${M_LIBS}])
 # _mb5_offset_list_size, all introduced 2015-01-29.
 PKG_CHECK_MODULES(LIBMUSICBRAINZ5,
                   libmusicbrainz5 >= 5.1.0,
-		  have_libmusicbrainz5=yes,
-		  have_libmusicbrainz5=no)
+                  have_libmusicbrainz5=yes,
+                  have_libmusicbrainz5=no)
 AS_IF([test "x${have_libmusicbrainz5}" = "xyes"], [
     cflags_save=${CFLAGS}
     CFLAGS="${CFLAGS} ${LIBMUSICBRAINZ5_CFLAGS}"
@@ -133,6 +135,10 @@ PKG_CHECK_MODULES(ZLIB, zlib >= 1.2.2.1, have_zlib=yes, have_zlib=no)
 AS_IF([test "x${have_zlib}" = "xno"], [
     AC_MSG_ERROR([need zlib 1.2.2.1 or later])
 ])
+
+
+# Checks for library functions.
+AC_CHECK_FUNCS([clock_gettime])
 
 AC_CONFIG_FILES([Makefile])
 AC_OUTPUT
