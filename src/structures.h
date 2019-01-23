@@ -1,7 +1,7 @@
 /* -*- mode: c; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 8 -*- */
 
 /*-
- * Copyright (c) 2014, Johan Hattne
+ * Copyright © 2018-2019, Johan Hattne
  *
  * Permission to use, copy, modify, and/or distribute this software
  * for any purpose with or without fee is hereby granted, provided
@@ -16,8 +16,6 @@
  * OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
- * $Id:$
  */
 
 #ifndef STRUCTURES_H
@@ -41,7 +39,7 @@ STRUCTURES_BEGIN_C_DECLS
  * we are currently at version 3
  *
  * XXX Can the structures from libmusicbrainz be reused here?  That'll
- * be difficult, becauses libmusicbrainz doesn't really allow stuff to
+ * be difficult, because libmusicbrainz doesn't really allow stuff to
  * be removed from its list structures.  Also, we need to extend the
  * structures, e.g. a recording has a score.
  *
@@ -55,7 +53,7 @@ STRUCTURES_BEGIN_C_DECLS
  * XXX "structures" is a poor name for this module.  Is "struct" better?
  *
  * XXX The whole business with the capacity is motivated by the
- * acoustid module, here the structures are continously grown and
+ * acoustid module, here the structures are continuously grown and
  * shrunk.  Instead of actually shrinking them, they are only grown.
  * To further exploit this idea, all the string should probably be
  * something like ne_buffer(), but that will have issues with wide
@@ -70,6 +68,8 @@ STRUCTURES_BEGIN_C_DECLS
  *      If first function declares it as a return value, all is well.
  *      See http://en.wikipedia.org/wiki/Opaque_pointer.
  */
+
+#include <stdint.h>
 
 
 /**
@@ -121,13 +121,13 @@ struct fp3_fingerprint
 
 
 /* And this would have members for title, sort_title, artist,
- * sort_artits, etc, etc?  As would the release, and possibly the
+ * sort_artist, etc, etc?  As would the release, and possibly the
  * release group?
  *
  * If this works, is there any possibility the AcoustID code could
  * stuff it into these structures directly?
  *
- * XXX Should this, perhaps, have been the metadat structure instead?
+ * XXX Should this, perhaps, have been the metadata structure instead?
  */
 struct fp3_recording
 {
@@ -172,7 +172,7 @@ struct fp3_recording
      */
     float score;
 
-    /* For AccurateRip verification. XXX Verify types XXX Maybe this
+    /* For AccurateRip verification.  XXX Verify types XXX Maybe this
      * is better suit for the disc?  Each disc has a number of these
      * structures, one for each offset?
      *
@@ -333,7 +333,7 @@ struct fp3_track
      */
     size_t position;
 
-    /* For AccurateRip verification. XXX Verify types XXX Maybe this
+    /* For AccurateRip verification.  XXX Verify types XXX Maybe this
      * is better suit for the disc?  Each disc has a number of these
      * structures, one for each offset?  For a track, it probably
      * makes sense to keep only the best offset.
@@ -411,7 +411,7 @@ struct fp3_disc
 
     /* Store the .  For each possible stream on each track need: (i)
      * AccurateRip stuff (ii) sector length discrepancies.  That has
-     * to be kept synchronized with the information on the medium.
+     * to be kept synchronised with the information on the medium.
      *
      * Make a difference: a medium has recordings, a disc has tracks?
      */
@@ -470,7 +470,7 @@ struct fp3_release
      * more matching recordings for each stream.
      *
      * XXX This is probably not correct.  Would need to have a mediums
-     * structure which containst a track structure which contains any
+     * structure which contains a track structure which contains any
      * number of recordings.  The recording structure then needs to
      * know its stream index.
      *
