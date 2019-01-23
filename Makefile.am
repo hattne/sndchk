@@ -6,7 +6,13 @@
 ## the copyright notice and this notice are preserved.  This file is
 ## offered as-is, without any warranty.
 
-bin_PROGRAMS = accurip diff fingerquery fingersum ratelimit sndchk sndtags
+bin_PROGRAMS = accurip     \
+               diff        \
+               fingerquery \
+               fingersum   \
+               ratelimit   \
+               sndchk      \
+               sndtags
 
 accurip_SOURCES = test/accurip.c
 accurip_CFLAGS  = @NEON_CFLAGS@          \
@@ -56,7 +62,8 @@ fingerquery_CFLAGS  = @NEON_CFLAGS@           \
                       @LIBAVUTIL_CFLAGS@      \
                       @LIBSWRESAMPLE_CFLAGS@  \
                       @LIBCHROMAPRINT_CFLAGS@ \
-                      @ZLIB_CFLAGS@
+                      @ZLIB_CFLAGS@           \
+                      @PTHREAD_CFLAGS@
 fingerquery_LDADD   = @NEON_LIBS@           \
                       @LIBAVCODEC_LIBS@     \
                       @LIBAVFORMAT_LIBS@    \
@@ -64,7 +71,8 @@ fingerquery_LDADD   = @NEON_LIBS@           \
                       @LIBSWRESAMPLE_LIBS@  \
                       @LIBCHROMAPRINT_LIBS@ \
                       @ZLIB_LIBS@           \
-                      @M_LIBS@
+                      @M_LIBS@              \
+                      @PTHREAD_LIBS@
 
 fingersum_SOURCES = src/fingersum.c  \
                     src/metadata.c   \
@@ -76,14 +84,16 @@ fingersum_CFLAGS  = @LIBAVCODEC_CFLAGS@     \
                     @LIBAVUTIL_CFLAGS@      \
                     @LIBSWRESAMPLE_CFLAGS@  \
                     @LIBCHROMAPRINT_CFLAGS@ \
-                    @ZLIB_CFLAGS@
+                    @ZLIB_CFLAGS@           \
+                    @PTHREAD_CFLAGS@
 fingersum_LDADD   = @LIBAVCODEC_LIBS@     \
                     @LIBAVFORMAT_LIBS@    \
                     @LIBAVUTIL_LIBS@      \
                     @LIBSWRESAMPLE_LIBS@  \
                     @LIBCHROMAPRINT_LIBS@ \
                     @ZLIB_LIBS@           \
-                    @M_LIBS@
+                    @M_LIBS@              \
+                    @PTHREAD_LIBS@
 
 ratelimit_SOURCES = src/ratelimit.c  \
                     test/ratelimit.c
@@ -106,7 +116,8 @@ sndchk_CFLAGS  = @NEON_CFLAGS@            \
                  @LIBSWRESAMPLE_CFLAGS@   \
                  @LIBCHROMAPRINT_CFLAGS@  \
                  @LIBMUSICBRAINZ5_CFLAGS@ \
-                 @ZLIB_CFLAGS@
+                 @ZLIB_CFLAGS@            \
+                 @PTHREAD_CFLAGS@
 sndchk_LDADD   = @NEON_LIBS@            \
                  @LIBAVCODEC_LIBS@      \
                  @LIBAVFORMAT_LIBS@     \
@@ -115,7 +126,8 @@ sndchk_LDADD   = @NEON_LIBS@            \
                  @LIBCHROMAPRINT_LIBS@  \
                  @LIBMUSICBRAINZ5_LIBS@ \
                  @ZLIB_LIBS@            \
-                 @M_LIBS@
+                 @M_LIBS@               \
+                 @PTHREAD_LIBS@
 
 # This was renamed from "tags" to "sndtags" so as not to clash with
 # Automake's reserved word.

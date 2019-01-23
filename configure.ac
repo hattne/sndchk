@@ -22,8 +22,13 @@ AM_INIT_AUTOMAKE([1.9 foreign subdir-objects])
 AC_DEFINE([ACOUSTID_CLIENT], ["4ACmQIrN0I"], [AcoustID client API key])
 
 
-# Checks for programs.
+# Checks for programs.  Using ${PTHREAD_CC} instead of ${CC} may be
+# overkill, since not everything requires POSIX threads, but on most
+# platforms, ${PTHREAD_CC} == ${CC} anyway.
 AC_PROG_CC
+AX_PTHREAD
+
+CC="${PTHREAD_CC}"
 
 
 # FFmpeg [https://www.ffmpeg.org] dependencies
