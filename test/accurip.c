@@ -32,7 +32,7 @@ struct chunk
 {
     uint32_t CRC;
     uint32_t unk;
-    
+
     int confidence;
 };
 
@@ -107,7 +107,7 @@ _ud_save(struct userdata *ud, const char *buf, size_t len)
         ud->buf = p;
         ud->capacity = len;
     }
-    
+
     memmove(ud->buf, buf, len);
     ud->len = len;
     return (0);
@@ -117,7 +117,7 @@ _ud_save(struct userdata *ud, const char *buf, size_t len)
 /* Returns zero on success, or non-zero on error.  XXX Need to handle
  * the case where we're actually blocked!
  *
- * buf should possibly be (uint8_t *) to guarentee that we're working
+ * buf should possibly be (uint8_t *) to guarantee that we're working
  * with octets.
  *
  * XXX Does this actually work as advertised, i.e. when called several
@@ -132,7 +132,7 @@ my_block_reader(void *userdata, const char *buf, size_t len)
     size_t off;
 
 
-    /* Exit if this is the last block. XXX Ensure that all the
+    /* Exit if this is the last block.  XXX Ensure that all the
      * buffered stuff is processed?
      */
     printf("Got response of length %zd\n", len);
@@ -282,17 +282,17 @@ main(int argc, char *argv[])
     ne_request *req;
     ne_session *sess;
     int rc;
-    
+
 
     if (ne_sock_init() != 0)
         ; // XXX
-     
+
     sess = ne_session_create("http", "www.accuraterip.com", 80);
     ne_set_useragent(sess, PACKAGE_NAME "/" PACKAGE_VERSION);
     req = ne_request_create(
         sess, "GET",
         "/accuraterip/a/6/e/dBAR-008-000b0e6a-004998ec-64089008.bin");
-    
+
     ud.buf = NULL;
     ud.capacity = 0;
     ud.len = 0;
@@ -331,7 +331,7 @@ main(int argc, char *argv[])
     for (i = 0; i < ud.nmemb; i++) {
         struct entry *entry;
         size_t j;
-        
+
         entry = &ud.entries[i];
 
         printf("Chunks: %zd\n", entry->track_count);
@@ -375,7 +375,7 @@ main(int argc, char *argv[])
         uint32_t chunk_disc_cddb;
         fread(&chunk_disc_cddb, 4, 1, stream);
         printf("CDDB: 0x%08x\n", chunk_disc_cddb);
-    
+
 
         /* XXX Check that it matched up with what was expected.  The
          * choose the matching one below.
@@ -395,7 +395,7 @@ main(int argc, char *argv[])
                feof(stream), ferror(stream), ftell(stream));
 
         //break;
-        
+
     } while (!ferror(stream) && !feof(stream));
 
     return (0);
@@ -556,7 +556,7 @@ main(int argc, char *argv[])
             ret = swr_init(swr_ctx);
             if (ret < 0) {
                 /* fprintf(
-                 *     stderr, "ERROR: couldn't initialize the audio converter\n");
+                 *     stderr, "ERROR: couldn't initialise the audio converter\n");
                  * XXX See av_strerror
                  */
                 return (-1);
@@ -580,7 +580,7 @@ main(int argc, char *argv[])
 
         checksum_ca[5 * 588 + 1 - 1] = 0;
         track_samples = 0;
-        
+
         for ( ; ; ) {
             if (av_read_frame(ic, &packet) < 0)
                 break;
@@ -680,8 +680,8 @@ main(int argc, char *argv[])
             }
         }
 
-        printf("track samples: %zd (diff to stream %llu)\n",
-               track_samples, stream->duration - track_samples);
+        printf("track samples: %zd (diff to stream %zd)\n",
+               track_samples, (size_t)(stream->duration - track_samples));
 
 //        if (i == argc - 1)
 //            checksum = checksum_ca[(k - 0) % (5 * 588 + 1)];
@@ -704,16 +704,16 @@ main(int argc, char *argv[])
         //cddbDiscId += _sum_digits(lrint(offset / 75.0) + 2);
         cddbDiscId += _sum_digits(offset / 75 + 2);
 
-        printf("  offset %08llx cddb %llu (%ld %zd)\n", offset, cddbDiscId,
+        printf("  offset %08" PRIx64 " cddb %" PRId64 " (%ld %zd)\n", offset, cddbDiscId,
                lrint(offset / 75),
                _sum_digits(lrint(offset / 75.0)));
-        
+
         offset += track_length;
     }
 
     discId1 += offset;
     discId2 += offset * ((argc - 1) + 1); // Number of tracks plus 1
-     
+
     printf("total samples: %zd\n", total_samples);
 
     // Offset of last track - offset of first track
@@ -751,7 +751,7 @@ Id1 000b0e6a Id2 0054a757 cddb 66089009
      *  discId2: 004998ec  or 0054a757 from ARFlac.pl
      *  cddbdiscid: 64089008
      */
-    printf("Got DiscId1 0x%08llx DiscId2 0x%08llx cddb 0x%08llx\n", discId1, discId2, cddbDiscId);
+    printf("Got DiscId1 0x%08" PRIx64 " DiscId2 0x%08" PRIx64 " cddb 0x%08" PRIx64 "\n", discId1, discId2, cddbDiscId);
 
     printf("http://www.accuraterip.com/accuraterip/%.1x/%.1x/%.1x/dBAR-%.3d-%.8x-%.8x-%.8x.bin\n",
            (int)(discId1 & 0xf),

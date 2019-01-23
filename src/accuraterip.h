@@ -38,7 +38,8 @@ ACCURATERIP_BEGIN_C_DECLS
  * @note An Accuraterip context must be accessed only by one thread at
  *       the time.
  *
- * @note Several functions depend on the MusicBrainz Client Library
+ * @note Several functions depend on the MusicBrainz Client Library;
+ *       maybe those should be migrated to musicbrainz.c?
  *
  * References
  *
@@ -51,7 +52,7 @@ ACCURATERIP_BEGIN_C_DECLS
 #include "structures.h"
 
 
-/* Initialise the AccurateRip context.  Initialises a persistant
+/* Initialise the AccurateRip context.  Initialises a persistent
  * session.
  *
  * Optionally, configure a SOCKSv5 proxy server which will be used for
@@ -59,7 +60,7 @@ ACCURATERIP_BEGIN_C_DECLS
  *
  * XXX Would like to support other proxy servers?  Would then probably
  * need a structure for all the relevant information: protocol,
- * hostname, port, username, and password.  What about using proxys
+ * hostname, port, username, and password.  What about using proxies
  * for the other connections as well?
  *
  * @param hostname SOCKS 5 proxy server to contact
@@ -136,7 +137,7 @@ struct _chunk
      * XXX This could be ignored.
      */
     uint32_t unk;
-    
+
     /* AccurateRip confidence
      *
      * Times ripped, a value of 200 implies it has been been ripped
@@ -144,8 +145,8 @@ struct _chunk
      */
     int confidence;
 };
-    
-    
+
+
 /* Disc identifier
  *
  * This is equivalent to Spoon's STAcRipDiscIdent structure from
@@ -157,7 +158,7 @@ struct _chunk
 struct _entry
 {
     /* XXX Maybe this is better named tracks (check Spoon's code).
-     * Then search this module for the occurance of "chunk".
+     * Then search this module for the occurrence of "chunk".
      */
     struct _chunk *chunks;
 
@@ -210,7 +211,7 @@ struct _track_eac
 struct _entry_eac
 {
     struct _track_eac *tracks;
-    
+
     /* Number of tracks on each CD.  Data tracks do not count.
      */
     uint32_t n_tracks;

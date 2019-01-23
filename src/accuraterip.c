@@ -16,8 +16,6 @@
  * OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
- * $Id:$
  */
 
 #ifdef HAVE_CONFIG_H
@@ -53,7 +51,7 @@ struct _userdata
     /* The result XXX response?
      */
     struct _cache *result;
-    
+
     /* Pointer to the neon session
      *
      * This is needed for error reporting in _block_reader().
@@ -185,7 +183,7 @@ _match_compar(struct _match *m1, struct _match *m2)
 #endif
 
 
-/* The smallest confidence for each result.  Synchronize this
+/* The smallest confidence for each result.  Synchronise this
  * documentation with stuff elsewhere (I think there are such things).
  */
 int // XXX Was static, should probably remain static
@@ -516,7 +514,7 @@ _dump_ar_entry(const struct _entry *entry)
 /* The _block_reader() implements a callback for parsing blocks of
  * data as they are read.  The function will read the @p len first
  * octets from the location pointed to by @p buf.  As soon as enough
- * data from consequitive blocks of an accepted response body have
+ * data from consecutive blocks of an accepted response body have
  * been accumulated, the _block_reader() populates the @p result
  * member of the _userdata structure pointed to by @p userdata.
  * Calling _block_reader() with a @p len argument of zero indicates
@@ -527,7 +525,7 @@ _dump_ar_entry(const struct _entry *entry)
  * @param buf      Pointer to the data block of the response
  * @param len      Number of characters in @p buf
  * @return         0 if successful, -1 otherwise.  If an error
- *                 occurrs, _block_reader() will set the session error
+ *                 occurs, _block_reader() will set the session error
  *                 string to indicate the error.
  */
 static int
@@ -582,7 +580,7 @@ _block_reader(void *userdata, const char *buf, size_t len)
          * 13-octet header.  Allocate and populate the entry's chunks
          * with data extracted from the 9-octet chunks in the block.
          *
-         * XXX This is certainly broken on big-endiang systems--it
+         * XXX This is certainly broken on big-endian systems--it
          * appears AccurateRIP always returns little-endian, binary
          * data.
          */
@@ -708,7 +706,7 @@ _block_reader_eac(void *userdata, const char *buf, size_t len)
 
 
     /* XXX Only try to process once we have gotten all the data.  Is
-     * it possible to parse this as the blocks are comming in?
+     * it possible to parse this as the blocks are coming in?
      *
      * Check for sufficient length first (to avoid buffer overflows)!
      *
@@ -979,7 +977,7 @@ _block_reader_localhost(void *userdata, const char *buf, size_t len)
 
 
     /* XXX Only try to process once we have gotten all the data.  Is
-     * it possible to parse this as the blocks are comming in?
+     * it possible to parse this as the blocks are coming in?
      *
      * Check for sufficient length first (to avoid buffer overflows)!
      *
@@ -989,7 +987,7 @@ _block_reader_localhost(void *userdata, const char *buf, size_t len)
     if (len > 0)
         return (0);
 
-    printf("THIS IS WHAT WE GOT [%zd] ->%s<-\n", ud->len, ud->buf);
+    printf("THIS IS WHAT WE GOT [%zd] ->%s<-\n", ud->len, (char *)ud->buf);
 
     return (0);
 }
@@ -1011,7 +1009,7 @@ _sum_digits(unsigned long x)
 /* XXX Documentation, sets errno, etc, etc
  *
  * XXX Maybe it does make sense with a separate function for the URL
- * in order to distinguishd between failure modes which warrant retry
+ * in order to distinguish between failure modes which warrant retry
  * and fatal errors [memory exhausting, etc].  This is why _mkpath()
  * was implemented as a separate function.
  *
@@ -1101,7 +1099,7 @@ _mkpath(Mb5Disc disc)
 
     /* Construct the fixed-length path from the disc identifiers, 58
      * characters plus a trailing null-character, in a loop that is
-     * guarenteed to terminate.
+     * guaranteed to terminate.
      */
     path = NULL;
     for (i = 58 + 1, j = i + 1; i < j; i = j + 1) {
@@ -1346,13 +1344,13 @@ _get_accuraterip(struct accuraterip_context *ctx, const char *path)
     ud.capacity = 0;
 
 
-    /* Create the request, only accepting succesful responses, and
+    /* Create the request, only accepting successful responses, and
      * ensure not to dispatch more requests per unit time than are
      * allowed.  Note that the ne_request_create() function cannot
      * fail, and that the case where there is no entry in the
      * AccurateRip database (code 404) is handled separately.
      *
-     * XXX Synchronize comment with acoustid ditto.
+     * XXX Synchronise comment with AcoustID ditto.
      */
     gc = gzip_new(ctx->session, _block_reader, &ud);
     if (gc == NULL) {
@@ -1437,7 +1435,7 @@ Chunk 3/3:
      * successfully.  The status as retrieved by ne_get_status() only
      * makes sense if ne_request_dispatch() succeeded.
      *
-     * XXX Update and synchronize comment!
+     * XXX Update and synchronise comment!
      */
     ret = ne_request_dispatch(request);
     switch (ret) {
@@ -1552,13 +1550,13 @@ _get_eac(struct accuraterip_context *ctx, const char *path)
     ud.capacity = 0;
 
 
-    /* Create the request, only accepting succesful responses, and
+    /* Create the request, only accepting successful responses, and
      * ensure not to dispatch more requests per unit time than are
      * allowed.  Note that the ne_request_create() function cannot
      * fail, and that the case where there is no entry in the
      * AccurateRip database (code 404) is handled separately.
      *
-     * XXX Synchronize comment with acoustid ditto.
+     * XXX Synchronise comment with AcoustID ditto.
      */
     gc = gzip_new(ctx->session_eac, _block_reader_eac, &ud);
     if (gc == NULL) {
@@ -1585,7 +1583,7 @@ _get_eac(struct accuraterip_context *ctx, const char *path)
      * successfully.  The status as retrieved by ne_get_status() only
      * makes sense if ne_request_dispatch() succeeded.
      *
-     * XXX Update and synchronize comment!
+     * XXX Update and synchronise comment!
      */
     ret = ne_request_dispatch(request);
     switch (ret) {
@@ -1704,13 +1702,13 @@ _get_localhost(struct accuraterip_context *ctx, const char *discid, const char *
     ud.capacity = 0;
 
 
-    /* Create the request, only accepting succesful responses, and
+    /* Create the request, only accepting successful responses, and
      * ensure not to dispatch more requests per unit time than are
      * allowed.  Note that the ne_request_create() function cannot
      * fail, and that the case where there is no entry in the
      * AccurateRip database (code 404) is handled separately.
      *
-     * XXX Synchronize comment with acoustid ditto.
+     * XXX Synchronise comment with AcoustID ditto.
      */
     gc = gzip_new(ctx->session_localhost, _block_reader_localhost, &ud);
     if (gc == NULL) {
@@ -1739,7 +1737,7 @@ _get_localhost(struct accuraterip_context *ctx, const char *discid, const char *
      * successfully.  The status as retrieved by ne_get_status() only
      * makes sense if ne_request_dispatch() succeeded.
      *
-     * XXX Update and synchronize comment!
+     * XXX Update and synchronise comment!
      */
     ret = ne_request_dispatch(request);
     switch (ret) {
@@ -1806,8 +1804,8 @@ _get_localhost(struct accuraterip_context *ctx, const char *discid, const char *
             printf("  FALLBACK ->%s<-\n", path);
 
             /* XXX Is the session_localhost still sending requests to
-             * localhost, or will it have to be reinitialized?  Seems
-             * it won't have to be reinitialized.
+             * localhost, or will it have to be reinitialised?  Seems
+             * it won't have to be reinitialised.
              *
              * XXX What about the case where redirect cannot be
              * parsed?  And redirect must be freed?
@@ -1939,7 +1937,7 @@ accuraterip_localhost_get(struct accuraterip_context *ctx, Mb5Disc disc)
 
 /**** REFACTOR START ****/
 
-/* Return the smallest position from all the media contaning a
+/* Return the smallest position from all the media containing a
  * recording with id @p id in @p medium_list greater or equal to @p
  * pos.  The function returns <0 if there no such medium exists.
  *
@@ -2066,7 +2064,7 @@ _next_medium(
         track_list = mb5_medium_get_tracklist(medium);
         if (track_list == NULL || _next_track(track_list, recordings, 0) < 0)
             continue;
-        
+
 
         /* Update the smallest position if this is the first valid
          * medium, or if the current position is the smallest so far.
@@ -2225,7 +2223,7 @@ _next_configuration(
      * numbers if it succeeds.
      *
      * Success: reset track of current stream, track and medium of all
-     * provious streams.
+     * previous streams.
      */
     for (i = 0; i < nmemb; i++) {
         newpos = _next_medium(
@@ -2641,7 +2639,7 @@ _score_configuration(struct accuraterip_context *ctx, Mb5MediumList medium_list,
         match_medium = p;
 
 
-        /* Assigne the medium and track positions for the recordings
+        /* Assign the medium and track positions for the recordings
          * in release.  XXX Better done elsewhere?
          */
         if (_assign_position(release, medium) != 0)
@@ -2836,7 +2834,7 @@ _score_configuration(struct accuraterip_context *ctx, Mb5MediumList medium_list,
          * in release).  Not sure that is good design.
          */
 
-        /* The worst matching "best" disc determinins the match of the
+        /* The worst matching "best" disc determines the match of the
          * release.
          */
         if (i == 0 || _match_compar(&match_release, &match_disc_best) > 0) {
@@ -3004,7 +3002,7 @@ _cfg2_release_new(Mb5MediumList medium_list, struct fp3_release *release, struct
     size_t k, l;
 
 
-    /* Allocate and initialize the configuration.  This could have
+    /* Allocate and initialise the configuration.  This could have
      * been _cfg2_release_new(), but it is not.
      */
     cfg = malloc(sizeof(struct _cfg2_release));
@@ -3121,8 +3119,8 @@ _cfg2_score_configuration(
 
     /* Find the number of streams, i.e. one more than the largest
      * index referred to in the configuration.  Allocate and
-     * initialize a sufficiently large result _match_release
-     * structure.  Note that calloc(3) will initialize the space to
+     * initialise a sufficiently large result _match_release
+     * structure.  Note that calloc(3) will initialise the space to
      * zero.
      */
     match_release = malloc(sizeof(struct _match_release));
@@ -3176,7 +3174,7 @@ _cfg2_score_configuration(
      * does not have track offset information, or if the offsets are
      * bogus.
      *
-     * XXX Should probably work with discID instead of indices
+     * XXX Should probably work with DiscID instead of indices
      * throughout the new code.
      */
     for (i = 0; i < cfg->n_media; i++) {
@@ -3220,7 +3218,7 @@ _cfg2_score_configuration(
 
         /* Score the streams corresponding to the tracks on this disc.
          * If _get_accuraterip() returned status > 0, the scores
-         * provided by the initializing calloc(3) above are good.
+         * provided by the initialising calloc(3) above are good.
          */
         for (j = 0; j < cfg->media[i].n_tracks; j++) {
             track = cfg->media[i].tracks + j;
@@ -3739,7 +3737,7 @@ k, l, m, result_3->checksums[m].checksum_v2, chunk->CRC, result_3->checksums[m].
  * Should probably take the Mb5Disc as an argument instead!  And this
  * requires that someone saved the best disc before!
  *
- * XXX This comment is severly broken!
+ * XXX This comment is severely broken!
  */
 struct _match_release *
 accuraterip_url(struct accuraterip_context *ctx,
@@ -3783,7 +3781,7 @@ accuraterip_url(struct accuraterip_context *ctx,
     }
 
 
-    /* XXX This loops way too much for Weather report wich starts
+    /* XXX This loops way too much for Weather report, which starts
      * iterating into the discs of release--most of the discs on this
      * release are not used, yet I feel this has to be fixed better!
      *
@@ -3806,7 +3804,7 @@ accuraterip_url(struct accuraterip_context *ctx,
          *
          * XXX This function should probably accept a valid
          * configuration.  It is not clear how to deal with the case
-         * when there are no valid configurtations (i.e. what are the
+         * when there are no valid configurations (i.e. what are the
          * confidences in that case)?.
          *
          * XXX No need to try to score against AccurateRip unless the

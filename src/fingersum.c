@@ -788,8 +788,8 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
      * buffer and return a pointer to the frame's data.
      */
     if (ctx->swr_ctx == NULL) {
-        /* XXX Note to self: flac files, both from morituri's and xld
-         * on vindaloo, go here.
+        /* XXX Note to self: flac files, both from morituri and XLD on
+         * vindaloo, go here.
          */
         if (*data != NULL && *size > 0) {
             av_freep(data);
@@ -1101,7 +1101,7 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
 
             /* The trailer, kept in circular array.  We may not want
              * to rely on duration being reported correctly (e.g. the
-             * Slayradio stream).  But we probably have to, otherwise
+             * SLAYRadio stream).  But we probably have to, otherwise
              * there is no way to get at the duration of the stream
              * without first traversing it.
              */
@@ -1208,7 +1208,8 @@ _feed_checksum(struct fingersum_context *ctx, const void *data, int len)
          * pause track on Duke.
          */
         if (ctx->stream->duration < (500 + 1) * 588) {
-            printf("Skipped track duration %lld\n", ctx->stream->duration);
+            printf("Skipped track duration %" PRId64 "\n",
+                   ctx->stream->duration);
             goto skip_crc32;
         }
 
@@ -3511,7 +3512,7 @@ fingersum_get_sectors(const struct fingersum_context *ctx)
          *
          * This happens for initial rip of Renegades.
          */
-        fprintf(stderr, "NOT INTEGER MULTIPLE OF FRAME SIZE %lld\n",
+        fprintf(stderr, "NOT INTEGER MULTIPLE OF FRAME SIZE %" PRId64 "d\n",
                 ctx->stream->duration);
         return (-1);
     }

@@ -1,16 +1,30 @@
 /* -*- mode: c++; c-basic-offset: 4; indent-tabs-mode: nil; tab-width: 8 -*- */
 
 /*-
+ * Copyright © 2018-2019, Johan Hattne
  *
- * This program works on a cluster of tracks (or files or streams)
+ * Permission to use, copy, modify, and/or distribute this software
+ * for any purpose with or without fee is hereby granted, provided
+ * that the above copyright notice and this permission notice appear
+ * in all copies.
  *
- * $Id:$
+ * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL
+ * WARRANTIES WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED
+ * WARRANTIES OF MERCHANTABILITY AND FITNESS.  IN NO EVENT SHALL THE
+ * AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR
+ * CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS
+ * OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
+ * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
+ * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
+ *
+ * XXX This program works on a cluster of tracks (or files or streams)
  */
 
 #include <sys/time.h>
 #include <sys/queue.h>
 
 #include <err.h>
+#include <inttypes.h>
 #include <libgen.h>
 #include <limits.h>
 #include <locale.h>
@@ -179,8 +193,8 @@ find_release(struct fp3_releasegroup *releasegroup, Mb5Release release)
  *
  * XXX Explain why we can't use the fuzzy match on the server: because
  * then we'd have to look up the TOC for every release (and there may
- * be many of them) instead of just looking up the reasegroup.  But is
- * this explanation valid?
+ * be many of them) instead of just looking up the releasegroup.  But
+ * is this explanation valid?
  *
  * Returns -1 on error, +1 on mismatch, and 0 on match.  Nah, should
  * probably return the minimum distance (and adjust the release
@@ -329,7 +343,8 @@ toc_match(struct fingersum_context **ctxs,
                     }
 
 
-                    /* This recording was not found. Append to the list.
+                    /* This recording was not found.  Append to the
+                     * list.
                      */
                     printf("  %d:%d: NOT FOUND\n", k, l);
 
@@ -748,7 +763,7 @@ length_in_mediumlist2(Mb5MediumList ml, const char *id, int *di_current)
  * XXX Why does looping over discs take so long?  As far as I recall,
  * no remote lookups are necessary!  See Lenny Kravitz's "5".
  *
- * XXX This appears to crash if the "00. XXX - Hidden Track One
+ * XXX This appears to crash if the "00.  XXX - Hidden Track One
  * Audio.flac" is still there.
  */
 static int
@@ -970,7 +985,7 @@ toc_match2(struct fingersum_context **ctxs,
     struct toc_score ts_current;
 
 
-    /* The best and the current choice of discid for each medium. XXX
+    /* The best and the current choice of discid for each medium.  XXX
      * These guys must be freed!
      */
     di_best = (int *)calloc(mb5_medium_list_size(ml), sizeof(int));
@@ -1779,7 +1794,7 @@ _disc_add_tracks(struct fp3_disc *disc,
                     return (-1);
                 }
             } else if (recording->id != NULL) {
-                /* Fail if this is the only occurrance of the stream
+                /* Fail if this is the only occurrence of the stream
                  * on the release.
                  *
                  * recording->id appears to be NULL for Summer hits,
@@ -1895,7 +1910,7 @@ _medium_add_discs(struct fp3_medium *medium,
 
 
         /* If the disc does not match, or does not contain any tracks
-         * consider the next one. Otherwise, assign discid .
+         * consider the next one.  Otherwise, assign discid.
          */
         if (Disc == NULL || disc->nmemb == 0)
             continue;
@@ -2130,7 +2145,7 @@ _complete_medium(struct fp3_medium *medium,
  *                   error occurs the global variable @c errno is set
  *                   to indicate the error.
  *
- * @param nmemb Largest index, the indices must be contiguis between
+ * @param nmemb Largest index, the indices must be contiguous between
  * [0, nmemb] XXX Could maybe pass a nmemb-long list of expected
  * indices.
  *
@@ -2422,7 +2437,7 @@ _release_has_matching_discs(struct fp3_release *release)
 
 
 #if 0 // XXX Currently not used
-/* Allocate and initialize space for the media.
+/* Allocate and initialise space for the media.
  *
  * XXX Candidate for the structures module?
  */
@@ -2450,8 +2465,8 @@ _grow_release_media(struct fp3_release *release, Mb5MediumList MediumList)
 
 #if 0 // XXX Currently not used
 /* Side effects: there will be no streams without any recordings [if
- * there are, that may be an error, because that would inidicate that
- * there are extraneus streams.
+ * there are, that may be an error, because that would indicate that
+ * there are extraneous streams.
  *
  * XXX FIX UP THIS FUNCTION: Just return the bound (not the score).
  * And merge all the weird implementations above!
@@ -2481,7 +2496,7 @@ _toc_lower_bound(struct fingersum_context **ctxs,
     int j, k, m, n, Position;
 
 
-    /* Allocate and initialize space for the media.
+    /* Allocate and initialise space for the media.
      *
      * XXX Really need to do that here and now?
      *
@@ -2735,7 +2750,7 @@ _toc_accuraterip(struct fingersum_context **ctxs,
     ssize_t offset;
 
 
-    /* Allocate and initialize space for the media.
+    /* Allocate and initialise space for the media.
      *
      * XXX Really need to do that here and now?
      */
@@ -2817,7 +2832,7 @@ _toc_accuraterip(struct fingersum_context **ctxs,
                         /* XXX CONTINUE HERE: add the recording to the
                          * disc at the given position (and should
                          * allow the disc to hold more than one
-                         * recording per position. And make sure the
+                         * recording per position.  And make sure the
                          * sector lengths match.  And make sure this
                          * function cleans up properly.  Discs should
                          * have a list of offsets, and perhaps a
@@ -2866,7 +2881,7 @@ _toc_accuraterip(struct fingersum_context **ctxs,
  * XXX Note somewhere that this doesn't scale so well, but that we use
  * it for short strings.
  *
- * XXX This will probably break with Unicode!  The unicode stuff must
+ * XXX This will probably break with Unicode!  The Unicode stuff must
  * be fixed, but it should probably not be case-insensitive!
  *
  * @param s XXX
@@ -2884,7 +2899,7 @@ levenshtein(const wchar_t *s, const wchar_t *t)
 
 
     /* Degenerate cases.  If cost in the loop is case-insensitive,
-     * this must be case-insensetive.
+     * this must be case-insensitive.
      */
 //    if (strcasecmp(s, t) == 0)
 //    if (wcscasecmp(s, t) == 0)
@@ -2899,11 +2914,11 @@ levenshtein(const wchar_t *s, const wchar_t *t)
         return (m);
 
 
-    /* Allocate and initialise v, the previous row of distances. This
+    /* Allocate and initialise v, the previous row of distances.  This
      * row is A[0][i], edit distance for an empty s.  The distance is
      * just the number of characters to delete from t.
      */
-    v = (size_t *)calloc(m + 1, sizeof(size_t)); // XXX Unneccessary cast!
+    v = calloc(m + 1, sizeof(size_t));
     if (v == NULL)
         return (SIZE_MAX);
 
@@ -3319,7 +3334,7 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
      *
      * XXX "Fat of the land" will have album artist "The Prodigy", but
      * artist "Prodigy".  This, however, requires generating the
-     * metadat from MB5 on a per-release basis.
+     * metadata from MB5 on a per-release basis.
      */
     Mb5NameCreditList ncl;
     Mb5NameCredit nc;
@@ -3352,7 +3367,8 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
 
 
         /* Is this logic correct?  Use namecredit if it exists, fall
-         * back on name of artist. XXX May need additional space here?
+         * back on name of artist.  XXX May need additional space
+         * here?
          *
          * Deal with artist->SortName() while we're here.
          *
@@ -3460,8 +3476,8 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
          * Hits" directory.
          *
          * Always ignore namecredit for album artist in order to group
-         * artist properly.  THe same artist should be sorted together
-         * on the iTunes filessytem, irrespective of how they choose
+         * artist properly.  The same artist should be sorted together
+         * on the iTunes filesystem, irrespective of how they choose
          * to credit themselves on the release: see "The Prodigy" vs
          * "Prodigy" on "Fat of the land".
          *
@@ -3560,7 +3576,7 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
 {
     /* Tricker?! Composer
      *
-     * MusicBrainz uses comma (,) as the separatar, but what about the
+     * MusicBrainz uses comma (,) as the separator, but what about the
      * delimiter? See
      * http://citationstyles.org/downloads/specification.html [THIS APPEARS TO BE RELEVANT FOR THE DOCBOOK WORK]!
      * XXX Ask the library!  Here's what they say: http://www.ncbi.nlm.nih.gov/books/NBK7256
@@ -3604,7 +3620,7 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
     char rid[256];
 
 
-    /* Get the compilation XXX this does not strictly adhear to the
+    /* Get the compilation XXX this does not strictly adhere to the
      * (new?) Apple interpretation.
      *
      * Here's my take on the Apple interpretation (hopefully
@@ -3742,7 +3758,7 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
                     w, "arranger", &artists, &nmemb_artists, composer_ref, 0);
 
 
-                /* XXX Whishlist: don't append lyricist if it's an
+                /* XXX Wishlist: don't append lyricist if it's an
                  * instrumental recording: see "Holiday for Strings"
                  * on "Musical Mayhem" as an example.
                  *
@@ -3820,9 +3836,9 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
                     }
 
 
-                    /* Second, append writer. XXX Should probably have
-                     * lyricist in between here [because I assume
-                     * composer preceeds lyricist].  See the mappings
+                    /* Second, append writer.  XXX Should probably
+                     * have lyricist in between here [because I assume
+                     * composer precedes lyricist].  See the mappings
                      * for more
                      * [http://picard.musicbrainz.org/docs/mappings]
                      */
@@ -4005,7 +4021,7 @@ get_mb_values(struct fp3_release *release, size_t medium_position, size_t record
         memmove(artists + k_min,
                 artists + k_min + 1,
                 (nmemb_artists > k_min + 1 ? nmemb_artists - k_min - 1 : 0) * sizeof(Mb5Artist));
-//        printf("OK, %zd artistst remaining, after shifting %zd\n",
+//        printf("OK, %zd artists remaining, after shifting %zd\n",
 //               nmemb_artists - 1,
 //               nmemb_artists > k_min + 1 ? nmemb_artists - k_min - 1 : 0);
         nmemb_artists -= 1;
@@ -4296,8 +4312,8 @@ _check_disc_checksum(struct fp3_disc *disc)
 }
 
 
-/* Returns non-zero if the release has/maps stream indentified by
- * index @p index.
+/* Returns non-zero if the release has/maps stream identified by index
+ * @p index.
  */
 static int
 _release_has_track(struct fp3_release *release, size_t index)
@@ -4516,7 +4532,7 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
 
 
                 /* There is at least one disc with a perfect match:
-                 * delete discs that do not match prefectly.
+                 * delete discs that do not match perfectly.
                  *
                  * XXX Need to remove the release if it has no
                  * matching discs?
@@ -4794,13 +4810,13 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
                                         continue;
                                     }
 
-                                    printf("          *** %d+%d/%d [max %d, offset %lld] ***\n",
+                                    printf("          *** %d+%d/%d [max %d, offset %" PRId64 "] ***\n",
                                            track->checksums[n]->checksum_v1,
                                            track->checksums[n]->checksum_v2,
                                            track->confidence_total,
                                            track->confidence_max,
                                            track->checksums[n]->offset);
-                                    printf("          *** %zd/%d [max %d, offset %lld] ***\n",
+                                    printf("          *** %zd/%d [max %d, offset %" PRId64 "] ***\n",
                                            track->checksums[n]->count_eac,
                                            track->confidence_eac_total,
                                            track->confidence_eac_max,
@@ -4860,16 +4876,16 @@ main(int argc, char *argv[])
    *
    * XXX This is probably not the right way to do this.  Read
    * http://www.cl.cam.ac.uk/~mgk25/unicode.html, the OpenBSD man
-   * pages, and search Mendelay for Unicode.
+   * pages, and search Mendeley for Unicode.
    */
   setlocale(LC_CTYPE, "en_US.UTF-8");
 
 
-    /* Initialize the neon library and its dependencies, must be
+    /* Initialise the neon library and its dependencies, must be
      * called once before the first ne_session_create().  Should be
      * matched by ne_sock_exit().  Even though neon is not directly
-     * used here, it its initialized here so as to avoid unneccesary
-     * initalisation in the indivdual modules.  As long as
+     * used here, it is initialised here so as to avoid unneccesary
+     * initialisation in the individual modules.  As long as
      * ne_sock_exit() is called on exit, this should work because of
      * the reference-counting.
      */
@@ -5285,12 +5301,12 @@ main(int argc, char *argv[])
              * of discs with bound and AccurateRip path, calculate
              * Levenshtein distance.  Next (non-network) loop: eliminate.
              *
-             * XXX Probably want to do this complety differently:
+             * XXX Probably want to do this completely differently:
              * assign position (track and medium) from recording, then
              * match against TOC, fall back on matching against track
              * length (and invert sign).  Populate a list of media and
              * calculate distance for each disc.  Key discs by discid,
-             * and use the specal NULL discid if the TOC-match had to
+             * and use the special NULL discid if the TOC-match had to
              * be done against track lengths.
              */
             if (_toc_lower_bound(ctxs, release3, MediumList, &toc_score) != 0) {
@@ -5427,7 +5443,7 @@ main(int argc, char *argv[])
 
     /* CHECK AGAINST ACCURATERIP
      *
-     * If the minimum distance is zero, eliminate all relases with
+     * If the minimum distance is zero, eliminate all releases with
      * positive distances (and prune releasegroups if appropriate).
      *
      * Only try to check stuff against AccurateRip if the distance is
@@ -5447,7 +5463,7 @@ main(int argc, char *argv[])
      *
      * Prune the releases: if a zero-distance releasegroup exist,
      * prune all release groups with distance >0.  Within each
-     * remaining releasegroup prune all relases with distance >0 if a
+     * remaining releasegroup prune all releases with distance >0 if a
      * zero-distance release exists.  Otherwise keep the best
      * releasegroup / release.
      *
@@ -5595,7 +5611,7 @@ main(int argc, char *argv[])
      * step below might remove a perfectly matching release because
      * another (mismatching) release fits the metadata better.
      *
-     * XXX This is duplicition w.r.t. the step after the levenshtein
+     * XXX This is duplication w.r.t. the step after the levenshtein
      * test.
      */
     for (i = 0; i < result3->nmemb; i++) {
@@ -5849,9 +5865,9 @@ artist-rels"
             release3 = releasegroup3->releases[j];
 
 
-            /* XXX THIS IS UNSTABLE: sometimes buggles never proceeds
+            /* XXX THIS IS UNSTABLE: sometimes Buggles never proceeds
              * to "leaving check".  Update: it appears the error (if
-             * any) occurrs elsewhere.
+             * any) occurs elsewhere.
              *
              * Nah, it is here: release3->confidence_min must be
              * assigned, otherwise this will break... naturally!

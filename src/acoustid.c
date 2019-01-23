@@ -16,8 +16,6 @@
  * OF USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,
  * NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
  * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- *
- * $Id:$
  */
 
 #ifdef HAVE_CONFIG_H
@@ -757,10 +755,10 @@ _dispatch(struct acoustid_context *ctx, ne_xml_parser *parser, ...)
         stat("/tmp/t.dat.gz", &sb);
         printf("compressed query "
                "[%ld -> %lu, compression ratio %.2f, %zd fingerprints]\n"
-               "                 diff to command line: %lld %zd [%llu]\n",
+               "                 diff to command line: %zd %zd [%zd]\n",
                query->used - 1, size_gzip,
                1.0f * (query->used - 1) / size_gzip, ctx->nmemb,
-               sb.st_size, size_gzip, sb.st_size - size_gzip);
+               (size_t)sb.st_size, size_gzip, (size_t)(sb.st_size - size_gzip));
         unlink("/tmp/t.dat.gz");
     }
     ne_buffer_destroy(query);
