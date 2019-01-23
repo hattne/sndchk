@@ -96,7 +96,6 @@ AC_SEARCH_LIBS([acos], [m], [], [
 M_LIBS=${LIBS}
 LIBS=${libs_save}
 AC_SUBST(M_LIBS)
-AC_MSG_NOTICE([Found ${M_LIBS}])
 
 
 # MusicBrainz Client Library

@@ -26,7 +26,8 @@ accurip_LDADD   = @NEON_LIBS@          \
                   @LIBAVFORMAT_LIBS@   \
                   @LIBAVUTIL_LIBS@     \
                   @LIBSWRESAMPLE_LIBS@ \
-                  @ZLIB_LIBS@
+                  @ZLIB_LIBS@          \
+                  @M_LIBS@
 
 diff_SOURCES = src/fingersum.c  \
                src/metadata.c   \
@@ -133,4 +134,5 @@ sndchk_LDADD   = @NEON_LIBS@            \
 # Automake's reserved word.
 sndtags_SOURCES = test/sndtags.c
 sndtags_CFLAGS  = @LIBAVFORMAT_CFLAGS@
-sndtags_LDADD   = @LIBAVFORMAT_LIBS@
+sndtags_LDADD   = @LIBAVFORMAT_LIBS@ \
+                  @LIBAVUTIL_LIBS@
