@@ -448,7 +448,7 @@ main(int argc, char *argv[])
         AVFrame *frame;
         uint8_t **data, *output[1];
         int64_t channel_layout;
-        int consumed, duration, nb_samples,  linesize;
+        int consumed, /* duration, */ nb_samples,  linesize;
 
         ic = NULL;
         swr_ctx = NULL;
@@ -492,10 +492,10 @@ main(int argc, char *argv[])
                    stream->time_base.den,
                    stream->duration);
             */
-            duration = stream->time_base.num * stream->duration /
-                stream->time_base.den;
+//            duration = stream->time_base.num * stream->duration /
+//                stream->time_base.den;
         } else if (ic->duration != AV_NOPTS_VALUE) {
-            duration = ic->duration / AV_TIME_BASE;
+//            duration = ic->duration / AV_TIME_BASE;
         } else {
             /* fprintf(
              *     stderr, "ERROR: couldn't detect the audio duration\n");

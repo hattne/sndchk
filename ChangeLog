@@ -1,3 +1,5 @@
+    * Builds on Linux.
+
     * Do not use functions deprecated in FFmpeg 4.1
 
     * Build system now uses the Autotools.

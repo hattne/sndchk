@@ -4312,6 +4312,7 @@ _check_disc_checksum(struct fp3_disc *disc)
 }
 
 
+#if 0
 /* Returns non-zero if the release has/maps stream identified by index
  * @p index.
  */
@@ -4397,6 +4398,7 @@ _check_release_no_extra_tracks(struct fp3_release *release, size_t index_max)
 
     return (1);
 }
+#endif
 
 
 /* XXX Should print all the releases, even the ones that
@@ -4637,6 +4639,13 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
     //printf("Found max index %zd\n", max_index);
 
 
+    /* Remove releases with extra tracks, prune empty releasegroups.
+     *
+     * This does not work so well for releases with extra disks,
+     * e.g. Coldplay Live 2003, which has a bonus DVD.  XXX Should
+     * disregard extra disks if they're not CD:s?
+     */
+#if 0
     int have_release_without_extra_tracks = 0;
     for (i = 0; i < result->nmemb; i++) {
         releasegroup = result->releasegroups[i];
@@ -4652,14 +4661,6 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
         }
     }
 
-
-    /* Remove releases with extra tracks, prune empty releasegroups.
-     *
-     * This does not work so well for releases with extra disks,
-     * e.g. Coldplay Live 2003, which has a bonus DVD.  XXX Should
-     * disregard extra disks if they're not CD:s?
-     */
-#if 0
     if (have_release_without_extra_tracks != 0) {
         for (i = 0; i < result->nmemb; i++) {
             releasegroup = result->releasegroups[i];
@@ -4884,7 +4885,7 @@ main(int argc, char *argv[])
     /* Initialise the neon library and its dependencies, must be
      * called once before the first ne_session_create().  Should be
      * matched by ne_sock_exit().  Even though neon is not directly
-     * used here, it is initialised here so as to avoid unneccesary
+     * used here, it is initialised here so as to avoid unnecessary
      * initialisation in the individual modules.  As long as
      * ne_sock_exit() is called on exit, this should work because of
      * the reference-counting.
@@ -5175,8 +5176,12 @@ main(int argc, char *argv[])
     struct musicbrainz_ctx *mb_ctx;
 
     mb_ctx = musicbrainz_new();
-    if (mb_ctx == NULL)
-        ; // XXX
+    if (mb_ctx == NULL) {
+        pool_free_pc(pc2);
+        free(ctxs);
+        printf("Failed to initialise mb_ctx\n");
+        return (EXIT_FAILURE);
+    }
 
     /* XXX This appears to not crash, but maybe we won't need all of
      * those here, now.
