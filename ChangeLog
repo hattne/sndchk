@@ -1,3 +1,5 @@
+2019-01-24  sndchk v0.0.1  <johan@hattne.se>
+
     * Builds on FreeBSD and Linux.
 
     * Do not use functions deprecated in FFmpeg 4.0.

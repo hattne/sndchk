@@ -18,8 +18,8 @@ AC_CONFIG_HEADERS([config.h])
 AM_INIT_AUTOMAKE([1.9 foreign subdir-objects])
 
 
-# Registered API key for sndchk 0.0.0.
-AC_DEFINE([ACOUSTID_CLIENT], ["4ACmQIrN0I"], [AcoustID client API key])
+# Registered API key for sndchk 0.0.1.
+AC_DEFINE([ACOUSTID_CLIENT], ["1L5a7F0OXu"], [AcoustID client API key])
 
 
 # Checks for programs.  Using ${PTHREAD_CC} instead of ${CC} may be
