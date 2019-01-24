@@ -26,8 +26,11 @@ AC_DEFINE([ACOUSTID_CLIENT], ["1L5a7F0OXu"], [AcoustID client API key])
 # overkill, since not everything requires POSIX threads, but on most
 # platforms, ${PTHREAD_CC} == ${CC} anyway.
 AC_PROG_CC
-AX_PTHREAD
 
+AX_PTHREAD(have_pthread=yes, have_pthread=no)
+AS_IF([test "x${have_pthread}" = "xno"], [
+    AC_MSG_ERROR([need POSIX Threads])
+])
 CC="${PTHREAD_CC}"
 
 
