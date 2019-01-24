@@ -625,6 +625,8 @@ _pool_init(size_t nmemb)
         }
         _pool_threads = p;
 #endif
+    } else if (_pool_nmemb == nmemb) {
+        return (0);
     }
 
     if (pthread_mutex_unlock(&_mutex) != 0) {
