@@ -1774,8 +1774,6 @@ _get_localhost(struct accuraterip_context *ctx, const char *discid, const char *
              */
             return (_get_accuraterip(ctx, path));
 
-            break;
-
         default:
             printf("GOT CASE default, klass %d\n", ne_get_status(request)->klass);
             ud.result->status = -1;
@@ -1787,6 +1785,9 @@ _get_localhost(struct accuraterip_context *ctx, const char *discid, const char *
         /* "Connection refused" (the server is not running).  XXX
          * Should treat this the same way as a 404.
          */
+       ud.result->status = +1;
+       return (_get_accuraterip(ctx, path));
+
     case NE_REDIRECT:
         /* This is the interesting bit
          */
