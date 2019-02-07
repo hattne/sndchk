@@ -1923,14 +1923,8 @@ accuraterip_localhost_get(struct accuraterip_context *ctx, Mb5Disc disc)
     response = _get_localhost(ctx, id->data, path);
     free(path);
     ne_buffer_destroy(id);
-    if (response == NULL || response->status != 0) {
-        printf("#1: Exiting with error, status=%d\n", response->status);
-        exit(0);
+    if (response == NULL || response->status != 0)
         return (NULL);
-    }
-
-//    printf("#2: Exiting with error, response=%p\n", response);
-//    exit(0);
 
     return (response);
 }
