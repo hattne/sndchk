@@ -8,7 +8,7 @@
 
 AC_PREREQ(2.59)
 AC_INIT([sndchk],
-        [0.0.0],
+        [0.0.1],
         [johan@hattne.se],
         [sndchk],
         [http://www.hattne.se/sndchk])

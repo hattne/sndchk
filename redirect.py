@@ -64,13 +64,15 @@ def redirect_handler_factory():
         }
 
         def do_GET(self):
-            # XXX Print the user agent string
-
             #print "Got command " + self.command
             #print "Got path " + self.path
 
             #self.send_response(301)
             #self.send_header('Location', url)
+
+            # XXX Should probably log this instead of printing it.
+            for ua in self.headers.getheaders('User-Agent'):
+                print "User-Agent: ", ua
 
             try:
                 url = 'http://www.accuraterip.com' + self.discid2path[self.path]
