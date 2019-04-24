@@ -922,6 +922,11 @@ int
 fp3_permute_result(
     struct fp3_result *result, const size_t *permutation, size_t nmemb);
 
+/* Sort the media within a release
+ */
+void
+fp3_sort_release(struct fp3_release *release);
+
 /* Sort the releases within a releasegroup
  */
 void

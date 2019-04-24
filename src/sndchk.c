@@ -5678,6 +5678,8 @@ main(int argc, char *argv[])
             release3 = releasegroup3->releases[j];
             release_distance = 0;
 
+            fp3_sort_release(release3);
+
             for (k = 0; k < release3->nmemb_media; k++) {
                 medium3 = release3->media[k];
 

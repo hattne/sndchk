@@ -2710,6 +2710,31 @@ fp3_sort_disc(struct fp3_disc *disc)
 }
 
 
+static int
+_compar_medium(const void *a, const void *b)
+{
+    const struct fp3_medium *ma = *((struct fp3_medium **)a);
+    const struct fp3_medium *mb = *((struct fp3_medium **)b);
+
+    if (ma->position < mb->position)
+        return (-1);
+    if (ma->position > mb->position)
+        return (+1);
+
+    return (0);
+}
+
+
+void
+fp3_sort_release(struct fp3_release *release)
+{
+    qsort(release->media,
+          release->nmemb_media,
+          sizeof(struct fp3_medium *),
+          _compar_medium);
+}
+
+
 /* Sort by distance, then score, and lastly lexicographically by ID.
  */
 static int
