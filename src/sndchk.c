@@ -2979,10 +2979,10 @@ _append_artist(
     char str[1024];
     char str2[1024];
 
-//    Mb5AttributeList al;
+    Mb5AttributeList al;
     Mb5RelationList rl;
     Mb5RelationListList rll;
-//    Mb5Attribute attribute;
+    Mb5Attribute attribute;
     Mb5Relation relation;
     Mb5Artist artist;
 
@@ -3030,20 +3030,19 @@ _append_artist(
              * XXX There is a actually a difference: "lyricist [with
              * attribute translated]" and "translator".  This
              * distinction appears to be gone now [2015-08-23].
+             *
+             * "additional" credits are always optional.  Makes sense?
              */
-/*
             al = mb5_relation_get_attributelist(relation);
-            translated = 0;
             for (k = 0; k < mb5_attribute_list_size(al); k++) {
                 attribute = mb5_attribute_list_item(al, k);
                 mb5_attribute_get_text(attribute, str2, sizeof(str2));
 //                printf("    #### GOT AN ATTRIBUTE ->%s<-\n", str2);
-                if (strcmp(str2, "translated") == 0) {
-                    translated = 1;
+                if (strcmp(str2, "additional") == 0) {
+                    optional = 1;
                     break;
                 }
             }
-*/
 
             artist = mb5_relation_get_artist(relation);
             if (artist == NULL)
