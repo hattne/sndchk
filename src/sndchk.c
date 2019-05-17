@@ -1779,8 +1779,8 @@ _disc_add_tracks(struct fp3_disc *disc,
         for (j = 0; j < fingerprint->nmemb; j++) {
             stream = fingerprint->streams[j];
 
-            printf("  Checking %zd/%zd index %zd sectors: %d\n",
-                   i, recording->nmemb, stream->index, sectors);
+//            printf("  Checking %zd/%zd index %zd sectors: %d\n",
+//                   i, recording->nmemb, stream->index, sectors);
 
 
             // XXX fingersum_get_sectors() can fail!
@@ -1788,7 +1788,7 @@ _disc_add_tracks(struct fp3_disc *disc,
                 /* Keep the stream if its sector length equals the
                  * sector length of the track under consideration.
                  */
-                printf("    Adding index %zd\n", stream->index);
+//                printf("    Adding index %zd\n", stream->index);
                 if (fp3_track_add_index(track, stream->index) != 0) {
                     fp3_free_track(track);
                     return (-1);
