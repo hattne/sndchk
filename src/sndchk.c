@@ -3503,6 +3503,10 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
             len2 += mb5_artist_get_sortname(
                 a, metadata->sort_album_artist + len2, 1024 - len2);
 
+            char jp[64];
+
+            mb5_namecredit_get_joinphrase(nc, jp, 64);
+
 
             /* Always use semicolon for joinphrase in sort album
              * artist.  See above.
@@ -3514,8 +3518,21 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
              * way is to canonicalize it like "a, b, c & d" (which is
              * kinda what MusicBrainz does by default)?  It should now
              * be canonicalized.
+             *
+             * Comma and semicolon have sepecial meanings for
+             * classical releases.  Also, an artist may appear more
+             * than once.  See for instance "John Cage, Herbert Henck;
+             * Herbert Henck".  But always use semicolon to separate
+             * sort album artist.
              */
-            if (i + 2 == mb5_namecredit_list_size(ncl)) {
+           if (strcmp(jp, ", ") == 0 || strcmp(jp, "; ") == 0) {
+                strcat(metadata->album_artist + len, jp);
+                len += strlen(jp);
+
+                strcat(metadata->sort_album_artist + len2, "; ");
+                len2 += strlen("; ");
+
+            } else if (i + 2 == mb5_namecredit_list_size(ncl)) {
                 strcat(metadata->album_artist + len, " & ");
                 len += 3;
 
@@ -3534,7 +3551,6 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
                 len2 += mb5_namecredit_get_joinphrase(
                     nc, metadata->sort_album_artist + len2, 1024 - len2);
             }
-
         }
     }
 

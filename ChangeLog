@@ -1,3 +1,5 @@
+    * Fixed many minor bugs and regressions
+
 2019-01-24  sndchk v0.0.1  <johan@hattne.se>
 
     * Builds on FreeBSD and Linux.
