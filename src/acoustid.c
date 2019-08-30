@@ -1635,7 +1635,7 @@ _cb_endelm(void *userdata, int state, const char *nspace, const char *name)
             ne_xml_set_error(ud->parser, strerror(errno));
             return (NE_XML_ABORT);
         } else if (l < 1) {
-            _ne_xml_set_error(ud->parser, "Position \"%ld\" < 1", l);
+            _ne_xml_set_error(ud->parser, "Medium position \"%ld\" < 1", l);
             return (NE_XML_ABORT);
         }
         ud->medium_current->position = l;
@@ -1986,15 +1986,21 @@ _cb_endelm(void *userdata, int state, const char *nspace, const char *name)
 
 
     case _STATE_TRACK_POSITION:
-        // The track position must be larger than zero, because zero
-        // indicates that the position has not been assigned.  The
-        // upper bound cannot be checked, because medium/track_count
-        // may not yet have been seen.
+        /* The track position must be a non-negative integer, but no
+         * further validation can be performed at this time.  In
+         * particular, the lower bound (zero) is a valid track
+         * position, and the upper bound (the medium/track_count) may
+         * not yet have been seen.
+         *
+         * XXX Should give the received string in the error message
+         * rather than the strerror()?
+         */
         if (_cdatatol(ud, &l) != 0) {
             ne_xml_set_error(ud->parser, strerror(errno));
             return (NE_XML_ABORT);
-        } else if (l < 1) {
-            _ne_xml_set_error(ud->parser, "Position \"%ld\" < 1", l);
+        } else if (l < 0) {
+            _ne_xml_set_error(
+                ud->parser, "Invalid track position \"%ld\" < 0", l);
             return (NE_XML_ABORT);
         }
         ud->track_current->position = l;

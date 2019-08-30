@@ -198,7 +198,8 @@ struct fp3_recording
 
     /* One-based position of the track on the parent medium.  Must be
      * less than nmemb_tracks in the parent medium.  Zero means it has
-     * not been assigned.
+     * not been assigned.  XXX No!  Zero is a valid track position,
+     * see e.g. "Brothers in Arms".
      */
     size_t position;
 };

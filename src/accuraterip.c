@@ -1596,7 +1596,7 @@ _get_eac(struct accuraterip_context *ctx, const char *path)
             /* Successful lookup: increase the count of cached
              * responses.
              */
-            printf("GOT CASE 2\n");
+            printf("GOT CASE 2(a)\n");
             ctx->nmemb += 1;
             ud.result->path = strdup(path);
             if (ud.result->path == NULL) {
@@ -1611,7 +1611,7 @@ _get_eac(struct accuraterip_context *ctx, const char *path)
              * cached, too, because repeated lookup should yield the
              * same result.  Same applies to the case below.
              */
-            printf("GOT CASE 4\n");
+            printf("GOT CASE 4(a)\n");
             ud.result->status = +1;
             break;
 
@@ -1750,7 +1750,7 @@ _get_localhost(struct accuraterip_context *ctx, const char *discid, const char *
             /* Successful lookup: increase the count of cached
              * responses.
              */
-            printf("GOT CASE 2\n");
+            printf("GOT CASE 2(b)\n");
             ctx->nmemb += 1;
             ud.result->path = strdup(path);
             if (ud.result->path == NULL) {
@@ -1765,7 +1765,7 @@ _get_localhost(struct accuraterip_context *ctx, const char *discid, const char *
              * cached, too, because repeated lookup should yield the
              * same result.  Same applies to the case below.
              */
-            printf("GOT CASE 4\n");
+            printf("GOT CASE 4(b)\n");
             ud.result->status = +1;
             /* XXX Better construct path from disc here, but then
              * connection issues should also go this route.
@@ -3562,6 +3562,10 @@ _cfg3_check_release(struct accuraterip_context *ctx,
 
                     /* XXX Should also transport CRC, CRC (EAC), and
                      * the signatures.
+                     *
+                     * Unless stuff is really finished by now, there
+                     * will be a lot of time spent IN SINGLE-THREADED
+                     * MODE here, waiting for stuff to finish.
                      */
                     result_3 = fingersum_get_result_3(leader, center, trailer);
 
