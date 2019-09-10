@@ -5809,8 +5809,13 @@ main(int argc, char *argv[])
              * (perfect) alternative!
              *
              * XXX Evil duplication w.r.t. above.
+             *
+             * XXX Cannot do this here, but must do it later!  It may
+             * be the case the metadata matches perflectly, but the
+             * release is nevertheless wrong (e.g. does not contain
+             * the right discs).  This happens for e.g. Siamese.
              */
-            if (metadata_min_distance == 0 && release3->metadata_distance > metadata_min_distance) {
+            if (metadata_min_distance == 0 && release3->metadata_distance > metadata_min_distance && 0) {
                 printf("Will remove because %zd > %zd\n",
                        release3->metadata_distance, metadata_min_distance);
                 fp3_erase_release(releasegroup3, j);
