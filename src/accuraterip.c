@@ -3541,15 +3541,28 @@ _cfg3_check_release(struct accuraterip_context *ctx,
             }
 
             for (k = 0; k < disc->nmemb; k++) {
+                struct fp3_ar *result_3;
+
                 track = disc->tracks[k];
 
                 leader = _ctx_at_position(ctxs, disc, track->position - 1);
                 center = _ctx_at_position(ctxs, disc, track->position);
                 trailer = _ctx_at_position(ctxs, disc, track->position + 1);
 
+
+                /* XXX Should also transport CRC, CRC (EAC), and
+                 * the signatures.
+                 *
+                 * Unless stuff is really finished by now, there
+                 * will be a lot of time spent IN SINGLE-THREADED
+                 * MODE here, waiting for stuff to finish.
+                 */
+                result_3 = fingersum_get_result_3(leader, center, trailer);
+                if (result_3 == NULL)
+                    continue;
+
 #if 1
                 struct _chunk *chunk;
-                struct fp3_ar *result_3;
                 size_t l, m;
 
                 for (l = 0; l < response->nmemb; l++) {
@@ -3559,18 +3572,7 @@ _cfg3_check_release(struct accuraterip_context *ctx,
                     if (chunk->confidence > track->confidence_max)
                         track->confidence_max = chunk->confidence;
 
-
-                    /* XXX Should also transport CRC, CRC (EAC), and
-                     * the signatures.
-                     *
-                     * Unless stuff is really finished by now, there
-                     * will be a lot of time spent IN SINGLE-THREADED
-                     * MODE here, waiting for stuff to finish.
-                     */
-                    result_3 = fingersum_get_result_3(leader, center, trailer);
-
-                    if (result_3 != NULL) {
-                        for (m = 0; m < result_3->nmemb; m++) {
+                    for (m = 0; m < result_3->nmemb; m++) {
 
 #if 0
 printf("%02zd %02zd %02zd: COMPARING v1 0x%08x and 0x%08x [offset %lld, confidence %d]\n",
@@ -3579,13 +3581,12 @@ printf("%02zd %02zd %02zd: COMPARING v2 0x%08x and 0x%08x [offset %lld, confiden
 k, l, m, result_3->checksums[m].checksum_v2, chunk->CRC, result_3->checksums[m].offset, chunk->confidence);
 #endif
 
-                            if (fp3_track_add_checksum(
+                        if (fp3_track_add_checksum(
                                 track,
                                 result_3->checksums[m].offset,
                                 result_3->checksums[m].checksum_v1 == chunk->CRC ? chunk->confidence : 0,
                                 result_3->checksums[m].checksum_v2 == chunk->CRC ? chunk->confidence : 0) != 0) {
-                                ; // XXX
-                            }
+                            ; // XXX
                         }
                     }
                 }
@@ -3658,17 +3659,26 @@ k, l, m, result_3->checksums[m].checksum_v2, chunk->CRC, result_3->checksums[m].
             }
 
             for (k = 0; k < disc->nmemb; k++) {
+                //struct _chunk *chunk;
+                struct _block_eac * block_eac;
+                struct _track_eac *track_eac;
+                struct fp3_ar *result_3;
+                size_t l, m;
+
                 track = disc->tracks[k];
 
                 leader = _ctx_at_position(ctxs, disc, track->position - 1);
                 center = _ctx_at_position(ctxs, disc, track->position);
                 trailer = _ctx_at_position(ctxs, disc, track->position + 1);
 
-                //struct _chunk *chunk;
-                struct _block_eac * block_eac;
-                struct _track_eac *track_eac;
-                struct fp3_ar *result_3;
-                size_t l, m;
+
+                /* XXX Should also transport CRC, CRC (EAC), and
+                 * the signatures.
+                 */
+                result_3 = fingersum_get_result_3(leader, center, trailer);
+                result_3 = NULL;
+                if (result_3 == NULL)
+                    continue;
 
                 if (response->entry_eac != NULL) {
                     if (track->position > response->entry_eac->n_tracks + 1)
@@ -3685,30 +3695,24 @@ k, l, m, result_3->checksums[m].checksum_v2, chunk->CRC, result_3->checksums[m].
                             track->confidence_eac_max = block_eac->count;
 
 
-                        /* XXX Should also transport CRC, CRC (EAC), and
-                         * the signatures.
-                         */
-                        result_3 = fingersum_get_result_3(leader, center, trailer);
 
-                        if (result_3 != NULL) {
-                            for (m = 0; m < result_3->nmemb; m++) {
+                        for (m = 0; m < result_3->nmemb; m++) {
 #if 0
-                                printf("TRACK[%lld, %zd]: %zu\n",
-                                       result_3->checksums[m].offset, l,
-                                       track->position);
-                                printf("  CRC32 file: 0x%08x\n",
-                                       result_3->checksums[m].crc32_eac);
-                                printf("  CRC32 net:  0x%08x\n",
-                                       block_eac->crc32);
+                            printf("TRACK[%lld, %zd]: %zu\n",
+                                   result_3->checksums[m].offset, l,
+                                   track->position);
+                            printf("  CRC32 file: 0x%08x\n",
+                                   result_3->checksums[m].crc32_eac);
+                            printf("  CRC32 net:  0x%08x\n",
+                                   block_eac->crc32);
 //                                sleep(3);
 #endif
 
-                                if (fp3_track_add_eac_checksum(
-                                        track,
-                                        result_3->checksums[m].offset,
-                                        result_3->checksums[m].crc32_eac == block_eac->crc32 ? block_eac->count : 0)) {
+                            if (fp3_track_add_eac_checksum(
+                                    track,
+                                    result_3->checksums[m].offset,
+                                    result_3->checksums[m].crc32_eac == block_eac->crc32 ? block_eac->count : 0)) {
                                 ; // XXX
-                                }
                             }
                         }
                     }
