@@ -3181,6 +3181,9 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
      * fingerprint -- for summer party, it should be possible to match
      * them up by disc instead.
      *
+     * It may be caused by the recording not being associated with a
+     * fingerprint at MB.
+     *
      * THINK!  See below about recording->id being NULL!
      *
      * XXX Would really want to print the list of fingerprints [and
@@ -4721,33 +4724,41 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
                 if (medium == NULL)
                     continue;
                 if (medium->nmemb_discs == 0) {
-                    /* XXX Get lots of difficult-to-interpret output
-                     * when there is no matching disc in MB.  Fix
-                     * that!
-                     */
-                    printf("    *** MEDIUM %zd: NO MATCHING DISCS IN MB ***\n", medium->position);
+                    printf("    *** MEDIUM %zd: NO MATCHING DISCS IN MB ***\n",
+                           medium->position);
 
                     for (l = 0; l < medium->nmemb_tracks; l++) {
+                        /* Since there is no disc, there cannot be a
+                         * match against AccurateRip or EAC.
+                         */
                         recording = medium->tracks[l];
 
+                        printf("      *** TRACK %zd\n", recording->position);
                         if (recording->nmemb > 1)
-                            printf("*** MORE THAN ONE FINGERPRINT! ***\n");
-
-
-                        /* There is no match in AccurateRip.  Output
-                         * the distance instead?
-                         */
-                        printf("        *** TRACK %zd\n", recording->position);
+                            printf("      *** MORE THAN ONE FINGERPRINT! ***\n");
 
                         for (m = 0; m < recording->nmemb; m++) {
-                            printf("getting fingerprint\n");
                             fingerprint = recording->fingerprints[m];
-                            printf("got fingerprint %p\n", fingerprint);
 
                             for (n = 0; n < fingerprint->nmemb; n++) {
                                 stream = fingerprint->streams[n];
                                 index = stream->index;
-                                printf("got index %zd\n", index);
+
+
+                                /* XXX It seems there are often
+                                 * several streams in a fingerprint,
+                                 * but with the same index.  That
+                                 * should probably not happen: each
+                                 * stream should occur at most once in
+                                 * a fingerprint?
+                                 */
+                                if (n > 0) {
+                                    if (index != fingerprint->streams[0]->index) {
+                                        printf("*** MORE THANE ONE STREAM! ***\n");
+                                    } else {
+                                        continue;
+                                    }
+                                }
 
                                 if (diff_stream_2(release,
                                                   medium->position,
@@ -4763,6 +4774,8 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
                 }
 
                 for (l = 0; l < medium->nmemb_discs; l++) {
+                    /* There is at least one matching disc.
+                     */
                     disc = medium->discs[l];
                     if (disc == NULL)
                         continue;
