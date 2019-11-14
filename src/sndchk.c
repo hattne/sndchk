@@ -2986,7 +2986,7 @@ _append_artist(
     Mb5Relation relation;
     Mb5Artist artist;
 
-    int i, j; //, translated;
+    int i, j, optional_save; //, translated;
     void *p;
     size_t k;
 
@@ -2998,6 +2998,7 @@ _append_artist(
     if (rll == NULL)
         return (0);
 
+    optional_save = optional;
     for (i = 0; i < mb5_relationlist_list_size(rll); i++) {
         rl = mb5_relationlist_list_item(rll, i);
         if (rl == NULL)
@@ -3032,8 +3033,13 @@ _append_artist(
              * distinction appears to be gone now [2015-08-23].
              *
              * "additional" credits are always optional.  Makes sense?
+             *
+             * XXX If we set optional here, then all subsequent
+             * artists will be treated as optional, too: restore the
+             * original setting!
              */
             al = mb5_relation_get_attributelist(relation);
+            optional = optional_save;
             for (k = 0; k < mb5_attribute_list_size(al); k++) {
                 attribute = mb5_attribute_list_item(al, k);
                 mb5_attribute_get_text(attribute, str2, sizeof(str2));
@@ -3182,7 +3188,9 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
      * them up by disc instead.
      *
      * It may be caused by the recording not being associated with a
-     * fingerprint at MB.
+     * fingerprint at MB.  For really short audioclips,
+     * acoustid-fingerprinter won't submit any fingerprints (11 s gets
+     * no fingerprint, but 13 s does).
      *
      * THINK!  See below about recording->id being NULL!
      *
@@ -4579,6 +4587,8 @@ diff_stream(struct fp3_result *result, struct fingersum_context **ctxs)
 
 
             /* There is at least one release where all the discs match.
+             *
+             * XXX Not true: this triggers even if there are NO discs!
              */
             if (release_has_mismatched_disc == 0) {
                 printf("  Release %s has matching discs\n", release->id);
