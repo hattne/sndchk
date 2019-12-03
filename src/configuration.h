@@ -82,7 +82,7 @@ struct _cfg2_track
     /* The selected stream.  Must be less than nmemb.
      *
      * XXX Negative SHOULD indicate that no stream is assigned [or is
-     * that perhaps the index member of the _cfg2_stream struct?]
+     * that perhaps the index member of the _cfg2_stream structure?]
      * Nah, this is a bigger bug [tänkte inte på det] -- see "Rat
      * Pack" for illustration.
      *
@@ -103,7 +103,7 @@ struct _cfg2_track
 
 struct _cfg2_medium
 {
-    /* Selected discID index for each medium XXX Should have been a
+    /* Selected discid index for each medium XXX Should have been a
      * string?
      *
      * It is conceivable that the same discid appears on several media.
@@ -157,7 +157,7 @@ struct _cfg2_cfg
  * XXX This function probably needs a better name!  And taking both a
  * bunch of fingersum_context:s AND a fp3_release is ugly!
  *
- * XXX This will break if we don't do the musicbrainz query (lookup)
+ * XXX This will break if we don't do the MusicBrainz query (lookup)
  * with discids!
  *
  * @param pc    Pointer to an opaque pool context

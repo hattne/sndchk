@@ -91,7 +91,7 @@ struct metadata
     /* XXX This is a bit tricky still, would like it to be the
      * recording year!  Should probably be the date of the recording,
      * but this seems poorly populated in Musicbrainz.
-     * 
+     *
      * http://forum.kodi.tv/showthread.php?tid=171592
      *
      * Morituri seems to be doing the right thing (TM).

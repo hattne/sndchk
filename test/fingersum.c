@@ -170,7 +170,7 @@ main(int argc, char *argv[])
 
         /* Multiprocessing!
          */
-    
+
 #if 0 // XXX Zap this!
         /* Stress-test pool_init(): repeatedly grow and shrink the
          * thread pool until it is the desired size.

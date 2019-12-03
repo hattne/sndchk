@@ -67,7 +67,7 @@ _cfg2_next_discid(Mb5DiscList DiscList, const char *discid)
 
         if (discid != NULL && strcmp(id_curr->data, discid) <= 0)
             continue;
-        
+
         if (id_best == NULL) {
             id_best = id_curr;
             id_curr = ne_buffer_ncreate(LEN_DISCID + 1);
@@ -199,7 +199,7 @@ _cfg2_disc_with_id(Mb5Medium Medium, const char *discid)
     DiscList = mb5_medium_get_disclist(Medium);
     if (DiscList == NULL)
         return (NULL);
-    
+
     id = ne_buffer_ncreate(LEN_DISCID + 1);
     for (i = 0; i < mb5_disc_list_size(DiscList); i++) {
         Disc = mb5_disc_list_item(DiscList, i);
@@ -209,7 +209,7 @@ _cfg2_disc_with_id(Mb5Medium Medium, const char *discid)
         ne_buffer_grow(id, mb5_disc_get_id(Disc, NULL, 0) + 1);
         mb5_disc_get_id(Disc, id->data, id->length);
         ne_buffer_altered(id);
-        
+
         if (strcmp(id->data, discid) == 0) {
             ne_buffer_destroy(id);
             return (Disc);
@@ -301,7 +301,7 @@ _cfg2_track_insert_stream(struct _cfg2_track *track, size_t index, int residual)
     size_t i;
 
 
-    /* Grow the array to accomodate one more stream.  Determine the
+    /* Grow the array to accommodate one more stream.  Determine the
      * index i of the stream before which to insert.
      *
      * XXX This could have used a bisection algorithm instead.
@@ -336,8 +336,8 @@ _cfg2_track_insert_stream(struct _cfg2_track *track, size_t index, int residual)
 
 /* Rather, what are the best streams (in order) for the track?
  *
- * May leave track in an inconsistent state on failure... nah, I don't
- * think so!
+ * May leave track in an inconsistent state on failure...  nah, I
+ * don't think so!
  *
  * @param Disc Can be @c NULL
  *
@@ -467,7 +467,7 @@ _cfg2_first_disc_configuration(Mb5MediumList MediumList)
                 _cfg2_medium_init(cfg->media + j);
             cfg->n_media = pos;
         }
-        
+
 
         /* Initially, select the first disc for each medium, and
          * initialize the track list.
@@ -478,7 +478,7 @@ _cfg2_first_disc_configuration(Mb5MediumList MediumList)
         medium->tracks = NULL;
 
 //        printf("SET DISCID on medium %zd to ->%s<-\n", i, medium->discid_str);
-        
+
         for (j = 0; j < mb5_track_list_size(TrackList); j++) {
             Track = _cfg2_track_at_position(TrackList, j + 1);
             if (Track == NULL)
@@ -564,7 +564,7 @@ _cfg2_next_disc_configuration(struct _cfg2_cfg *cfg, Mb5MediumList MediumList)
                     cfg->media[i].discid_str = discid;
                 }
             }
-            
+
             return (0);
         }
     }
@@ -654,7 +654,7 @@ _cfg2_dump_track_configuration(const struct _cfg2_cfg *cfg)
                            track->streams[k].index + 1,
                            track->streams[k].residual);
                 }
-#endif            
+#endif
             } else {
                 printf(" UNASSIGNED");
             }
@@ -732,14 +732,14 @@ _cfg2_step_forward(struct _cfg2_cfg *cfg)
 
     size_t i_step, j_step; // XXX For diagnostics only
 
-    
+
     r_best = INT_MAX;
     track_min = NULL;
-    
+
     for (i = 0; i < cfg->n_media; i++) {
         for (j = 0; j < cfg->media[i].n_tracks; j++) {
             track = cfg->media[i].tracks + j;
-        
+
             if (track->selected + 1 < track->nmemb) {
                 r = abs(track->streams[track->selected + 1].residual) -
                     abs(track->streams[track->selected].residual);
@@ -893,7 +893,7 @@ _cfg2_first_configuration(struct _cfg2_cfg *cfg,
     }
 
 
-    /* Find the best valid configuration. Chose the next best
+    /* Find the best valid configuration.  Chose the next best
      * configuration
      *
      * XXX THIS IS COMPLETELY UNTESTED!  Needs a fair amount of
@@ -902,8 +902,8 @@ _cfg2_first_configuration(struct _cfg2_cfg *cfg,
      * Notes from manuscript:
      *
      *  (1) What's the smallest we can add?  Try to add all, in order
-     *  of increasing magnitude, stop after first. XXX PROBLEM: WE MAY
-     *  HAVE TO BACKTRACK.  How does counting really work?
+     *  of increasing magnitude, stop after first.  XXX PROBLEM: WE
+     *  MAY HAVE TO BACKTRACK.  How does counting really work?
      *
      *  (2) What's the largest we can remove?  Try to remove all, in
      *  order of decreasing magnitude.

@@ -42,9 +42,9 @@
  * common use case).
  *
  * XXX Should also output duration.  And probably the rest of the
- * metadata in the audiofile as well.
+ * metadata in the audio file as well.
  *
- * XXX Idea: would be good to have a tool that checks an audiofile
+ * XXX Idea: would be good to have a tool that checks an audio file
  * against a bunch of fingerprints and reports the score.
  */
 int

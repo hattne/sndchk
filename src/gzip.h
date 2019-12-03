@@ -52,15 +52,15 @@ GZIP_BEGIN_C_DECLS
  * error string should have been set by the callback."
  *
  * XXX FROM ne_request.h:ne_add_response_reader: "Add a response
- * reader for the given request, with the given acceptance
- * function. userdata is passed as the first argument to the
- * acceptance + reader callbacks.  The acceptance callback is called
- * once each time the request is sent: it may be sent >1 time because
- * of authentication retries etc.  For each time the acceptance
- * callback is called, if it returns non-zero, blocks of the response
- * body will be passed to the reader callback as the response is read.
- * After all the response body has been read, the callback will be
- * called with a 'len' argument of zero."
+ * reader for the given request, with the given acceptance function.
+ * userdata is passed as the first argument to the acceptance + reader
+ * callbacks.  The acceptance callback is called once each time the
+ * request is sent: it may be sent >1 time because of authentication
+ * retries etc.  For each time the acceptance callback is called, if
+ * it returns non-zero, blocks of the response body will be passed to
+ * the reader callback as the response is read.  After all the
+ * response body has been read, the callback will be called with a
+ * 'len' argument of zero."
  *
  * @return Pointer to a gzip handler.  If an error occurs, gzip_new()
  *         returns @c NULL, updates the error string of @p parser, and

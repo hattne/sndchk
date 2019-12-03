@@ -123,7 +123,7 @@ acoustid_free(struct acoustid_context *ctx);
  *                    truncated to integer precision, as returned by
  *                    fingersum_get_duration()
  *
- * @param index XXXXXX New thing, motivated by the fact that this
+ * @param index       XXX New thing, motivated by the fact that this
  *                    shows up in the fp3_release structure
  */
 int
