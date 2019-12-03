@@ -177,9 +177,9 @@ fingersum_free(struct fingersum_context *ctx);
  * XXX Maybe three functions better for first, middle, and last?
  * Alternatively, a function called "match" with return value based on
  * whether it matched or not, and taking a pointer to a structure
- * which is populated with what version matched, wether sectors had to
- * be skipped in the beginning or the end, and what if any offset was
- * applied.
+ * which is populated with what version matched, whether sectors had
+ * to be skipped in the beginning or the end, and what if any offset
+ * was applied.
  *
  * XXX AccurateRip calls this thing a CRC
  *

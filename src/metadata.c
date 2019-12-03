@@ -165,7 +165,7 @@ metadata_dump(struct metadata *metadata)
      */
     if (metadata->composer != NULL) {
         printf("         Composer: %s [result ID, a.k.a. fingerprint ID]\n", metadata->composer);
-        if (metadata->sort_composer != NULL) 
+        if (metadata->sort_composer != NULL)
             printf("    Sort composer: %s\n", metadata->sort_composer);
     }
 
@@ -181,7 +181,7 @@ metadata_dump(struct metadata *metadata)
 
     /* "album artist" and "sort as" in iTunes
      */
-    if (metadata->album_artist != NULL) {        
+    if (metadata->album_artist != NULL) {
         printf("     Album artist: %s\n", metadata->album_artist);
         if (metadata->sort_album_artist != NULL)
             printf("Sort album artist: %s\n", metadata->sort_album_artist);

@@ -91,13 +91,13 @@ musicbrainz_query(struct musicbrainz_ctx *ctx,
  */
 Mb5Release
 musicbrainz_get_release(struct musicbrainz_ctx *ctx,
-			const char *entity,
-			const char *id,
-			const char *resource,
-			size_t num_params,
-			char **param_names,
-			char **param_values,
-			const char *release_id);
+                        const char *entity,
+                        const char *id,
+                        const char *resource,
+                        size_t num_params,
+                        char **param_names,
+                        char **param_values,
+                        const char *release_id);
 
 MUSICBRAINZ_END_C_DECLS
 

@@ -24,7 +24,7 @@
 
 #include <err.h>
 
-#include "../src/ratelimit.h" // XXX path is bad
+#include "src/ratelimit.h" // XXX path is bad
 
 
 int

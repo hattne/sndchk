@@ -328,7 +328,7 @@ gzip_inflate_reader(void *userdata, const char *buf, size_t len)
                 return (-1);
             }
             continue;
-            
+
         } else if (total_in == 0 && ret == Z_DATA_ERROR) {
             free(gc->out);
             gc->len = 0;

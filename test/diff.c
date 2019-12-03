@@ -55,7 +55,7 @@ main(int argc, char *argv[])
     if (stream1 == NULL)
         err(EXIT_FAILURE, "Failed to open %s", argv[1]);
     ctx1 = fingersum_new(stream1);
-    
+
     stream2 = fopen(argv[2], "r");
     if (stream2 == NULL)
         err(EXIT_FAILURE, "Failed to open %s", argv[2]);
@@ -76,6 +76,6 @@ main(int argc, char *argv[])
                argv[1], argv[2], ret);
         return (EXIT_FAILURE);
     }
-    
+
     return (EXIT_SUCCESS);
 }
