@@ -2356,7 +2356,7 @@ _add_streams_offset(struct fingersum_context **ctxs,
 #endif
 
 
-/* Returns non-zero if any of the discs for the medium has a matching
+/* Returns non-zero if any of the discs for the release has a matching
  * checksum for stream @p index.
  */
 static int
@@ -2392,14 +2392,16 @@ _release_has_matching_index(struct fp3_release *release, size_t index)
     }
 
 //    fp3_medium_dump(medium, 2, 0);
-    printf("    FAILED to find index %zd on medium %zd\n", index, medium->position);
+    printf("    FAILED to find stream index %zd\n", index);
 
     return (0);
 }
 
 
 /* Returns non-zero if all streams indices appear at least once in any
- * of the discs.
+ * of the discs.  XXX No point in going here if the release has no
+ * discs, because _release_has_matching_index() will fail... should
+ * probably warn about that beforehand?
  */
 static int
 _release_has_matching_discs(struct fp3_release *release)
@@ -5167,7 +5169,13 @@ main(int argc, char *argv[])
         /* XXX Should probably also include what the streams lacking
          * AcoustID matches.  Maybe intermediate level: only print
          * releasegroups and releases?
+         *
+         * If the expected release (or release group) is not listed in
+         * the output below, it may be the case that it was recently
+         * added to MusicBrainz and has not been synchronised to
+         * AcoustID yet.  "Patience, young Padawan." [sic]
          */
+        printf("Response from AcoustID:\n");
         if (fp3_result_dump(result3, 2, 0) < 0) {
             pool_free_pc(pc2);
             free(ctxs);
@@ -5392,6 +5400,10 @@ main(int argc, char *argv[])
      * certain circumstances (e.g. if all/most streams are assigned)
      * it would be possible to determine what (submitted) discs
      * actually DO match.
+     *
+     * XXX This won't work for e.g. Queens of the Stone Age, because
+     * it has a track before the first (which was not ripped).  Nah!
+     * Broken edit https://musicbrainz.org/edit/63832060 at MB?
      */
     if (release_has_matching_discs != 0) {
         for (i = 0; i < result3->nmemb; i++) {
