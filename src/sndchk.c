@@ -5256,16 +5256,21 @@ main(int argc, char *argv[])
         releasegroup3->distance = LONG_MAX;
         prutt_values[1] = releasegroup3->id;
 
+
+        /* This is a browse request: entity is release, params
+         * includes "release-group=###", and ID is NULL.
+         */
         printf("Submitting query for release-group %s [%zd candidates]\n",
                releasegroup3->id, releasegroup3->nmemb);
         if (musicbrainz_query(mb_ctx,
                               "release",
-                              "",
+                              NULL,
                               "",
                               prutt_num,
                               prutt_names,
                               prutt_values) != 0) {
-            ; // XXX
+            printf("  Submission failed!\n");
+            exit(0); // XXX Should really exit or something... no point in going on?
         }
 
         for (j = 0; j < releasegroup3->nmemb; j++) {
@@ -5284,14 +5289,22 @@ main(int argc, char *argv[])
 
             Release = musicbrainz_get_release(mb_ctx,
                                               "release",
-                                              "",
+                                              NULL, // XXX This probably should not matter... Don't care whether result came from lookup, browse, or search...
                                               "",
                                               prutt_num,
                                               prutt_names,
                                               prutt_values,
                                               release3->id);
-            if (Release == NULL)
+            if (Release == NULL) {
+                /* XXX This may actually happen (e.g. if we didn't
+                 * exhaust the release-group, or maybe, if the query
+                 * just did not complete yet)!  Should wait for query
+                 * to finish, then exit with hard error if still not
+                 * found?
+                 */
+                printf("MB Query did not match release!\n");
                 continue;
+            }
 
             if (_complete_release(
                     release3, Release, argc - 1) != 0) {

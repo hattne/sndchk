@@ -42,7 +42,7 @@
 
 /* XXX This should be the MusicBrainz default.
  */
-#define MB_LIMIT 25
+#define MB_LIMIT 25 // XXX Could probably remove this now, useless?
 #define MB_RETRIES 5
 #define MB_SLEEP 5
 
@@ -286,10 +286,14 @@ _query_new(const char *entity,
         return (NULL);
     }
 
-    query->id = strdup(id);
-    if (query->id == NULL) {
-        _query_free(query);
-        return (NULL);
+    if (id != NULL) {
+        query->id = strdup(id);
+        if (query->id == NULL) {
+            _query_free(query);
+            return (NULL);
+        }
+    } else {
+        query->id = NULL;
     }
 
     query->resource = strdup(resource);
@@ -440,7 +444,10 @@ _find_in_cache(struct musicbrainz_ctx *ctx,
         if (strcmp(query->entity, entity) != 0)
             continue;
 
-        if (strcmp(query->id, id) != 0)
+        if (query->id == NULL) {
+            if (id != NULL)
+                continue;
+        } else if (id == NULL || strcmp(query->id, id) != 0)
             continue;
 
         if (strcmp(query->resource, resource) != 0)
@@ -616,7 +623,8 @@ _process(struct _query *query, struct musicbrainz_ctx *ctx)
              * [http://musicbrainz.org/doc/Development/XML_Web_Service/Version_2]
              *
              * Note somewhere (maybe not here): we are assuming
-             * "browse" requests.
+             * "browse" requests.  These should have query->id == NULL
+             * now...
              */
             if (ratelimit_musicbrainz() != 0) {
                 ne_buffer_destroy(val_offset);
@@ -633,7 +641,7 @@ _process(struct _query *query, struct musicbrainz_ctx *ctx)
 
             Metadata = mb5_query_query(ctx->Query,
                                        query->entity,
-                                       query->id,
+                                       query->id != NULL ? query->id : "", // XXX Necessary?  Does mb5_query_query() handle NULL?
                                        query->resource,
                                        query->nmemb_params + 2,
                                        names,
@@ -710,8 +718,12 @@ _process(struct _query *query, struct musicbrainz_ctx *ctx)
          * XXX Review the paging stuff on the MusicBrainz pages,
          * particularly the thing with the offset [add zero below, not
          * one].
+         *
+         * XXX 2020-05-05 for some reason, we do not get MB_LIMIT
+         * things back, even though there are more to come.  So query
+         * until it is exhausted?
          */
-    } while (size >= MB_LIMIT);
+    } while (query->id == NULL && size > 0 /* size >= MB_LIMIT */); // XXX Only check greater than zero for browse requests...
 
 
     /* Add the query to cache after successful completion, post the
@@ -846,7 +858,8 @@ musicbrainz_free(struct musicbrainz_ctx *ctx)
 
 
 // XXX Always called with entity = "Release"
-// XXX id == NULL <=> "browse request"?
+// XXX id == NULL <=> "browse request" or "search request"?  See https://wiki.musicbrainz.org/Development/XML_Web_Service/Version_2
+// XXX resource always empty string?  Zap it?
 int
 musicbrainz_query(struct musicbrainz_ctx *ctx,
                   const char *entity,
