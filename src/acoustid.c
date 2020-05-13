@@ -3424,6 +3424,13 @@ acoustid_query(struct acoustid_context *ctx)
     int ret;
 
 
+    /* Don't bother sending an empty query...  XXX Should really
+     * return an empty response, to distinguish it from failure.
+     */
+    if (ctx->nmemb == 0)
+        return (NULL);
+
+
     /* Create a new parser.  ne_xml_create(), and
      * ne_xml_push_handler() cannot fail.
      */
