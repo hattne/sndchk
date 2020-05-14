@@ -123,30 +123,29 @@ main(int argc, char *argv[])
 
         streams[i] = fopen(argv[i], "r");
         if (streams[i] == NULL) {
+            warn("Failed to open '%s'", argv[i]); // XXX Cannot do this printout after the while, because i will be messed up!
             while (i-- > 1) {
                 fingersum_free(ctxs[i]);
                 fclose(streams[i]);
             }
-            err(EXIT_FAILURE, "Failed to open %s", argv[i]);
         }
 
         ctxs[i] = fingersum_new(streams[i]);
         if (ctxs[i] == NULL) {
+            warn("Failed to read '%s'", argv[i]);
             while (i-- > 0) {
                 fingersum_free(ctxs[i]);
                 fclose(streams[i]);
             }
-            err(EXIT_FAILURE, "Failed to read %s", argv[i]);
         }
 
         arg = (void *)((intptr_t)i);
         if (add_request(pc, ctxs[i], arg, POOL_ACTION_CHROMAPRINT) != 0) {
-            pool_free_pc(pc);
+            warn("Failed to queue '%s'", argv[i]);
             while (i-- > 0) {
                 fingersum_free(ctxs[i]);
                 fclose(streams[i]);
             }
-            err(EXIT_FAILURE, "Failed to add to queue for %s", argv[i]);
         }
 
         printf("Submitted ->%s<-\n", argv[i]);

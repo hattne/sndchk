@@ -3393,7 +3393,6 @@ get_mb_values_reduced(struct fp3_release *release, size_t medium_position, size_
         } else {
             len += mb5_artist_get_name(
                 a, metadata->artist + len, 1024 - len);
-
         }
 
 
@@ -4959,6 +4958,11 @@ main(int argc, char *argv[])
     for (i = 0; i < argc - 1; i++) {
         streams[i] = fopen(argv[i + 1], "r");
         if (streams[i] == NULL) {
+            warn("Failed to open %s", argv[i + 1]);
+            while (i-- > 1) {
+                fingersum_free(ctxs[i]);
+                fclose(streams[i]);
+            }
             pool_free_pc(pc);
             free(ctxs);
             return (-1);
@@ -4966,15 +4970,24 @@ main(int argc, char *argv[])
 
         ctxs[i] = fingersum_new(streams[i]);
         if (ctxs[i] == NULL) {
+            warn("Failed to read '%s'", argv[i + 1]);
+            while (i-- > 1) {
+                fingersum_free(ctxs[i]);
+                fclose(streams[i]);
+            }
             pool_free_pc(pc);
             free(ctxs);
             return (-1);
         }
 
         if (add_request(pc, ctxs[i], (void *)i, POOL_ACTION_CHROMAPRINT) != 0) {
+            warn("Failed to queue '%s'", argv[i + 1]);
+            while (i-- > 1) {
+                fingersum_free(ctxs[i]);
+                fclose(streams[i]);
+            }
             pool_free_pc(pc);
             free(ctxs);
-            printf("Oh no, we're all gonna die\n"); // XXX
             return (-1);
         }
     }
@@ -5258,7 +5271,9 @@ main(int argc, char *argv[])
 
 
         /* This is a browse request: entity is release, params
-         * includes "release-group=###", and ID is NULL.
+         * includes "release-group=###", and ID is NULL.  XXX Make
+         * sure musicbrainz_query() returns immediately (it should
+         * just queue the query).
          */
         printf("Submitting query for release-group %s [%zd candidates]\n",
                releasegroup3->id, releasegroup3->nmemb);
@@ -5298,12 +5313,13 @@ main(int argc, char *argv[])
             if (Release == NULL) {
                 /* XXX This may actually happen (e.g. if we didn't
                  * exhaust the release-group, or maybe, if the query
-                 * just did not complete yet)!  Should wait for query
+                 * just did not complete yet)!  Could it be that we're
+                 * out of sync with Acoustid?  Should wait for query
                  * to finish, then exit with hard error if still not
                  * found?
                  */
                 printf("MB Query did not match release!\n");
-                continue;
+                continue; // exit(EXIT_FAILURE);
             }
 
             if (_complete_release(
