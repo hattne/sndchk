@@ -1,4 +1,11 @@
+2020-12-31  sndchk v0.0.2  <johan@hattne.se>
+
+    * Handle track zero from AcoustID
+
+    * Sort media within a release by position
+
     * Fixed many minor bugs and regressions
+
 
 2019-01-24  sndchk v0.0.1  <johan@hattne.se>
 
