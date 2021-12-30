@@ -763,6 +763,8 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
 
     /* Get the next packet from the appropriate stream and decode it.
      */
+gimme_another:
+//    printf("HATTNE entering _decode_frame() #0\n");
     for ( ; ; ) {
         if (av_read_frame(ctx->ic, &packet) < 0)
             return (0);
@@ -778,7 +780,12 @@ _decode_frame(struct fingersum_context *ctx, uint8_t **data, int *size)
         av_packet_unref(&packet);
     }
 
-    if (avcodec_receive_frame(ctx->avcc, ctx->frame) != 0) {
+//    printf("HATTNE entering _decode_frame() #1\n");
+    int ret = avcodec_receive_frame(ctx->avcc, ctx->frame);
+    if (ret == AVERROR(EAGAIN))
+        goto gimme_another;
+    if (ret != 0) {
+        printf("avcodec_recieve_frame() said %d vs %d: '%s'\n", ret, AVERROR(EAGAIN), av_err2str(ret));
         errno = EPROTO;
         return (-1);
     }
